@@ -35,7 +35,8 @@ tsconfig.config.json
 tsconfig.json
 vite.config.ts
 .vscode/extensions.json
-src/
+src/assets/
+src/main.ts
 .eslintrc.cjs
 env.d.ts
 index.html
