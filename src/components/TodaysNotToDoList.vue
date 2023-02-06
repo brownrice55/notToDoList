@@ -1,20 +1,21 @@
 <script setup lang="ts">
   interface Props {
-    notToDoListData: Array;
+    id: number;
+    list: string;
+    date: string;
   }
   defineProps<Props>();
 </script>
 
 <template>
   <ul>
-    <template v-for="data in notToDoListData" :key="data">
-      <li v-if="data[0]==='毎日'">
-        <input type="checkbox" id="">
-        <label for="">{{ data[1] }}</label>
-      </li>
-    </template>
+    <li>
+      <input type="checkbox" :id="id">
+      <label :for="id">{{ list }} {{ date }}</label>
+    </li>
   </ul>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+
 </style>

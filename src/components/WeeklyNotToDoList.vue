@@ -23,7 +23,7 @@
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .weekly__container {
   display: inline-block;
 }
