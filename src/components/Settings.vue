@@ -2,7 +2,6 @@
   import {ref, watch, computed} from 'vue';
 
   const disabledClass = ref('disabled');
-  const selectListArray: string[] = ['毎日', '平日', '土日', '週に１回'];
 
   interface Props {
     id: number;
@@ -39,11 +38,11 @@
     
     if(aType==='date' && targetElm.value!==props.date) {      
       localDate.value = targetElm.value;
-      onEditListBtnClick(localDate.value, '');
+      onEditListBtnClick(localDate.value, null);
     }
     else if(aType==='list' && targetElm.value!==props.list) {
       localList.value = targetElm.value;
-      onEditListBtnClick('', localList.value);
+      onEditListBtnClick(null, localList.value);
     }
     targetParentElm.classList.toggle('disabled');
   };

@@ -24,7 +24,8 @@ interface notToDoListType {
   id: number;
   list: string;
   date: number;
-  end: number;
+  stop: number;
+  done: boolean;
 }
 
 const weekyListData = JSON.parse(localStorage.getItem('weeklyNotToDoList'));
@@ -48,6 +49,37 @@ const showPage = (aPage: string): void => {
   showPageKey.value = aPage;
 };
 
+// TodaysNotToDoList
+const youbi:string[] = ['日','月','火','水','木','金','土'];
+const today = new Date();
+const todaysDate = { year:today.getFullYear(), month:(today.getMonth()+1), day:today.getDate(), youbi:today.getDay() };
+
+const onCheckDoneList = (id:number, done:boolean) : void => {
+  const editData = notToDoList.get(id);
+  if(editData) {
+    notToDoList.set(id, {list:editData.list, date:editData.date, stop:0, done:done});
+  }
+  localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
+}
+
+// WeeklyNotToDoList
+const yesterday = new Date(today.setDate(today.getDate()-1));
+const twodaysbefore = new Date(yesterday.setDate(yesterday.getDate()-1));
+const threedaysbefore = new Date(yesterday.setDate(yesterday.getDate()-1));
+const fourdaysbefore = new Date(yesterday.setDate(yesterday.getDate()-1));
+const fivedaysbefore = new Date(yesterday.setDate(yesterday.getDate()-1));
+const sixdaysbefore = new Date(yesterday.setDate(yesterday.getDate()-1));
+const sevendaysbefore = new Date(yesterday.setDate(yesterday.getDate()-1));
+const past7Days:any[] = Array(7).fill(Array(4).fill(''));
+past7Days[0] = { year:yesterday.getFullYear(), month:(yesterday.getMonth()+1), day:yesterday.getDate(), youbi:youbi[yesterday.getDay()] };
+past7Days[1] = { year:twodaysbefore.getFullYear(), month:(twodaysbefore.getMonth()+1), day:twodaysbefore.getDate(), youbi:youbi[twodaysbefore.getDay()] };
+past7Days[2] = { year:threedaysbefore.getFullYear(), month:(threedaysbefore.getMonth()+1), day:threedaysbefore.getDate(), youbi:youbi[threedaysbefore.getDay()] };
+past7Days[3] = { year:fourdaysbefore.getFullYear(), month:(fourdaysbefore.getMonth()+1), day:fourdaysbefore.getDate(), youbi:youbi[fourdaysbefore.getDay()] };
+past7Days[4] = { year:fivedaysbefore.getFullYear(), month:(fivedaysbefore.getMonth()+1), day:fivedaysbefore.getDate(), youbi:youbi[fivedaysbefore.getDay()] };
+past7Days[5] = { year:sixdaysbefore.getFullYear(), month:(sixdaysbefore.getMonth()+1), day:sixdaysbefore.getDate(), youbi:youbi[sixdaysbefore.getDay()] };
+past7Days[6] = { year:sevendaysbefore.getFullYear(), month:(sevendaysbefore.getMonth()+1), day:sevendaysbefore.getDate(), youbi:youbi[sevendaysbefore.getDay()] };
+
+// Settings
 const selectListIndex = ref(0);
 const selectListArray: string[] = ['毎日', '平日', '土日', '週に１回'];
 const inputList = ref('');
@@ -59,7 +91,7 @@ const onAddNewList = () : void => {
     return;
   }
   const notToDoListArray = [...notToDoList];
-  notToDoList.set(notToDoListArray.length, {list:inputList.value, date:selectListIndex.value, end:0});
+  notToDoList.set(notToDoListArray.length, {list:inputList.value, date:selectListIndex.value, stop:0, done:false});
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
   inputList.value = '';
   selectListIndex.value = 0;
@@ -70,13 +102,11 @@ const onAddNewList = () : void => {
 
 const onEditList = (id:number, aEditedDate:number, aEditedList:string) : void => {
   const editData = notToDoList.get(id);
-  console.log(aEditedDate);
-  console.log(aEditedList);
-  if(aEditedList) {
-    notToDoList.set(id, {list:aEditedList, date:editData.date, end:0});
+  if(aEditedList!==null) {
+    notToDoList.set(id, {list:aEditedList, date:editData.date, stop:0, done:false});
   }
-  else if(aEditedDate) {
-    notToDoList.set(id, {list:editData.list, date:aEditedDate, end:0});
+  else if(aEditedDate!==null) {
+    notToDoList.set(id, {list:editData.list, date:aEditedDate, stop:0, done:false});
   }
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
 };
@@ -86,6 +116,20 @@ watch(inputList,
     inputListAlert.value = (inputList.value.length>30) ? '30字以内で入力してください' : '';
   }
 );
+
+
+const isTodaysList = (aDate:number) => {
+  if(aDate==0) {//毎日の時
+    return true;
+  }
+  if(aDate==1 && todaysDate.youbi!==0 && todaysDate.youbi!==6) {//平日の時
+    return true;
+  }
+  if(aDate==2 && todaysDate.youbi===0 || todaysDate.youbi===6) {//土日の時
+    return true;
+  }
+  return false;
+};
 
 </script>
 
@@ -104,7 +148,12 @@ watch(inputList,
 
   <main>
     <section v-if="showPageKey==='todaysList'" class="todaysList">
-      <TodaysNotToDoList v-for="[id, data] in notToDoList" :key="id" :list="data.list" :id="id" :date="data.date" :selectListArray=selectListArray />
+      <h2 class="todaysList__title">{{ todaysDate.year }}年{{ todaysDate.month }}月{{ todaysDate.day }}日（{{ youbi[todaysDate.youbi] }}）のしないことリスト</h2>
+      <ul class="todaysList__list">
+        <template v-for="[id, data] in notToDoList" :key="id">
+          <TodaysNotToDoList v-if="isTodaysList(data.date)" :list="data.list" :id="id" :date="data.date" :done="data.done" :selectListArray=selectListArray @checkDoneList="onCheckDoneList" />
+        </template>
+      </ul>
     </section>
     <section v-if="showPageKey==='weeklyList'" class="weeklyList">
       <WeeklyNotToDoList />
