@@ -33,18 +33,19 @@
   };
 
   const onSaveList = (aType:string): void => {
-    const targetElm =  event.target as HTMLElement;
+    const e:any = event;
+    const targetElm =  (aType=='date') ? e.target as HTMLSelectElement : e.target as HTMLInputElement;
     const targetParentElm =  targetElm.parentNode as HTMLElement;
+    targetParentElm.classList.toggle('disabled');
     
-    if(aType==='date' && targetElm.value!==props.date) {      
-      localDate.value = targetElm.value;
-      onEditListBtnClick(localDate.value, null);
+    if(aType==='date' && parseInt(targetElm.value)!==props.date) {
+      localDate.value = parseInt(targetElm.value);
+      onEditListBtnClick(localDate.value, 'undefined');
     }
     else if(aType==='list' && targetElm.value!==props.list) {
       localList.value = targetElm.value;
-      onEditListBtnClick(null, localList.value);
+      onEditListBtnClick(1000, localList.value);
     }
-    targetParentElm.classList.toggle('disabled');
   };
 
 

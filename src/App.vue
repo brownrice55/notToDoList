@@ -57,7 +57,7 @@ const todaysDate = { year:today.getFullYear(), month:(today.getMonth()+1), day:t
 const onCheckDoneList = (id:number, done:boolean) : void => {
   const editData = notToDoList.get(id);
   if(editData) {
-    notToDoList.set(id, {list:editData.list, date:editData.date, stop:0, done:done});
+    notToDoList.set(id, {id:id, list:editData.list, date:editData.date, stop:0, done:done});
   }
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
 }
@@ -91,7 +91,7 @@ const onAddNewList = () : void => {
     return;
   }
   const notToDoListArray = [...notToDoList];
-  notToDoList.set(notToDoListArray.length, {list:inputList.value, date:selectListIndex.value, stop:0, done:false});
+  notToDoList.set(notToDoListArray.length, {id:notToDoListArray.length, list:inputList.value, date:selectListIndex.value, stop:0, done:false});
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
   inputList.value = '';
   selectListIndex.value = 0;
@@ -102,13 +102,15 @@ const onAddNewList = () : void => {
 
 const onEditList = (id:number, aEditedDate:number, aEditedList:string) : void => {
   const editData = notToDoList.get(id);
-  if(aEditedList!==null) {
-    notToDoList.set(id, {list:aEditedList, date:editData.date, stop:0, done:false});
+  if(editData===undefined) { return; }
+  if(aEditedList!=='undefined') {
+    notToDoList.set(id, {id:id, list:aEditedList, date:editData.date, stop:0, done:false});
   }
-  else if(aEditedDate!==null) {
-    notToDoList.set(id, {list:editData.list, date:aEditedDate, stop:0, done:false});
+  else if(aEditedDate!==1000) {
+    notToDoList.set(id, {id:id, list:editData.list, date:aEditedDate, stop:0, done:false});
   }
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
+
 };
 
 watch(inputList, 

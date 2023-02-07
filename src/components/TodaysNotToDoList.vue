@@ -31,8 +31,8 @@
 
 <template>
   <li>
-    <input type="checkbox" :id="props.id" :checked="localDone" @change="checkDoneTodo">
-    <label :for="props.id" :class="localDone?'done':''">{{ list }} {{ selectListArray[date] }}</label>
+    <input type="checkbox" :id="'check' + props.id" :checked="localDone" @change="checkDoneTodo">
+    <label :for="'check' + props.id" :class="localDone?'done':''">{{ list }} {{ selectListArray[date] }}</label>
   </li>
 </template>
 
