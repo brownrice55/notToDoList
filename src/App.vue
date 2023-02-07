@@ -23,7 +23,7 @@ if(notToDoListJsonStr!=='undefined') {
 interface notToDoListType {
   id: number;
   list: string;
-  date: string;
+  date: number;
   end: number;
 }
 
@@ -48,7 +48,8 @@ const showPage = (aPage: string): void => {
   showPageKey.value = aPage;
 };
 
-const selectList = ref('毎日');
+const selectListIndex = ref(0);
+const selectListArray: string[] = ['毎日', '平日', '土日', '週に１回'];
 const inputList = ref('');
 const listDataArray = ref([]);
 
@@ -58,18 +59,25 @@ const onAddNewList = () : void => {
     return;
   }
   const notToDoListArray = [...notToDoList];
-  notToDoList.set(notToDoListArray.length, {list:inputList.value, date:selectList.value, end:0});
+  notToDoList.set(notToDoListArray.length, {list:inputList.value, date:selectListIndex.value, end:0});
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
   inputList.value = '';
-  selectList.value = '毎日';
+  selectListIndex.value = 0;
   if(!isNotToDoData.value) {
     isNotToDoData.value = true;
   }
 };
 
-const onEditList = (id:number, list:string, aEditedList) : void => {
+const onEditList = (id:number, aEditedDate:number, aEditedList:string) : void => {
   const editData = notToDoList.get(id);
-  notToDoList.set(id, {list:aEditedList, date:editData.date, end:0});
+  console.log(aEditedDate);
+  console.log(aEditedList);
+  if(aEditedList) {
+    notToDoList.set(id, {list:aEditedList, date:editData.date, end:0});
+  }
+  else if(aEditedDate) {
+    notToDoList.set(id, {list:editData.list, date:aEditedDate, end:0});
+  }
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
 };
 
@@ -95,27 +103,24 @@ watch(inputList,
   </header>
 
   <main>
-    <template v-if="showPageKey==='todaysList'">
-      <TodaysNotToDoList v-for="[id, data] in notToDoList" :key="id" :list="data.list" :id="id" :date ="data.date" />
-    </template>
-    <template v-if="showPageKey==='weeklyList'">
+    <section v-if="showPageKey==='todaysList'" class="todaysList">
+      <TodaysNotToDoList v-for="[id, data] in notToDoList" :key="id" :list="data.list" :id="id" :date="data.date" :selectListArray=selectListArray />
+    </section>
+    <section v-if="showPageKey==='weeklyList'" class="weeklyList">
       <WeeklyNotToDoList />
-    </template>
-    <template v-if="showPageKey==='total'">
+    </section>
+    <section v-if="showPageKey==='total'" class="total">
       <Total />
-    </template>
-    <template v-if="showPageKey==='settings'">
+    </section>
+    <section v-if="showPageKey==='settings'" class="settings">
       <h2>設定</h2>
-      <p>あなたは何を<b>しない</b>ですか？</p>
+      <p>あなたは<b>何をしない</b>ですか？</p>
       <div class="settings___desc">
         {{ inputListAlert }}
       </div>
       <div class="settings__inputArea">
-        <select name="" id="" v-model="selectList">
-          <option>毎日</option>
-          <option>平日</option>
-          <option>土日</option>
-          <option>週に1日</option>
+        <select name="" id="" v-model="selectListIndex">
+          <option v-for="(data,index) in selectListArray" :value="index" :key="data">{{ data }}</option>
         </select>
         <input type="text" v-model="inputList">
       </div>
@@ -128,10 +133,10 @@ watch(inputList,
       <div class="settings__listArea">
         <h3>設定済みのしないことリスト</h3>
         <ul>
-          <Settings v-for="[id, data] in notToDoList" :key="id" :list="data.list" :id="id" :date="data.date" @editList="onEditList" />
+          <Settings v-for="[id, data] in notToDoList" :key="id" :list="data.list" :id="id" :date="data.date" :selectListArray=selectListArray @editList="onEditList" />
         </ul>
       </div>
-    </template>
+    </section>
   </main>
 </template>
 
@@ -144,29 +149,41 @@ watch(inputList,
 body {
   font-size: 1rem;
 }
-.header__nav {
-  position: fixed;
-  z-index: -1;
-  opacity: 0;
-  width: 100%;
-  height: 100vh;
-  background: #999;
-  transition: all 0.2s;
-  &.active {
-    opacity: 1;
-    z-index: 10;
-  }
-  ul {
-    display: none;
-    position: absolute;
+.header {
+  button {
     z-index: 11;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%,-50%);
-    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
   }
-  li {
-    cursor: pointer;
+  &__nav {
+    position: fixed;
+    z-index: -1;
+    opacity: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    transition: all 0.2s;
+    &.active {
+      opacity: 1;
+      z-index: 10;
+    }
+    ul {
+      display: none;
+      position: absolute;
+      z-index: 11;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      display: block;
+      font-size: 200%;
+      line-height: 3;
+      color: #fff;
+      text-align: center;
+    }
+    li {
+      cursor: pointer;
+    }
   }
 }
 
@@ -179,6 +196,7 @@ body {
     input {
       width: 100%;
       padding: 10px;
+      background: #eee;
     }
     select {
       padding: 10px;

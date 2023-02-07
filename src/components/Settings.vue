@@ -1,50 +1,75 @@
 <script setup lang="ts">
-  import {ref, watch} from 'vue';
+  import {ref, watch, computed} from 'vue';
 
   const disabledClass = ref('disabled');
-  const editBtnText: string[] = ['編集', '保存'];
-  const editBtnTextIndex = ref(0);
+  const selectListArray: string[] = ['毎日', '平日', '土日', '週に１回'];
 
   interface Props {
     id: number;
     list: string;
-    date: string;
+    date: number;
+    selectListArray: string[];
   }
 
   interface Emits {
-    (event: 'editList', id:number, list:string): void;
+    (event: 'editList', id:number, date:number, list:string): void;
   }
 
   const props = defineProps<Props>();
   const emit = defineEmits<Emits>();
 
-  const editListdata = ref(props.list);
+  const localList = ref(props.list);
+  const localDate = ref(props.date);
 
-  const onEditListBtnClick = (aInputValue:string): void => {
-    emit('editList', props.id, props.list, aInputValue);
+  const onEditListBtnClick = (aDateValue:number, aListValue:string): void => {
+    emit('editList', props.id, aDateValue, aListValue);
   };
 
-  const onEditList = (event: Event): void => {
-    editBtnTextIndex.value = (editBtnTextIndex.value===0) ? 1 : 0;
-    const parentDivElm =  event.target.parentNode.previousSibling;
-    parentDivElm.classList.toggle('disabled');
-    let inputElm = parentDivElm.children[1];
-    if(!editBtnTextIndex.value) {
-      onEditListBtnClick(inputElm.value);
+  const onEditList = (event:Event): void => {
+    const targetElm =  event.target as HTMLElement;
+    const parentElm = targetElm.parentNode as HTMLDivElement;
+    parentElm.classList.toggle('disabled');
+    const focusElm = targetElm.previousSibling as HTMLElement;
+    focusElm.focus();
+  };
+
+  const onSaveList = (aType:string): void => {
+    const targetElm =  event.target as HTMLElement;
+    const targetParentElm =  targetElm.parentNode as HTMLElement;
+    
+    if(aType==='date' && targetElm.value!==props.date) {      
+      localDate.value = targetElm.value;
+      onEditListBtnClick(localDate.value, '');
     }
-  }
+    else if(aType==='list' && targetElm.value!==props.list) {
+      localList.value = targetElm.value;
+      onEditListBtnClick('', localList.value);
+    }
+    targetParentElm.classList.toggle('disabled');
+  };
+
+
 </script>
 
 <template>
   <li :data-index="id">
-    <div class="settings__listArea__list" :class="disabledClass">
-      <select>
-        <option>{{ date }}</option>
-      </select>
-      <input type="text" :value="list">
+    <div class="settings__listArea__list">
+      <div :class="disabledClass">
+        <select @blur="onSaveList('date')">
+          <template v-for="(d, i) in props.selectListArray" :value="i" :key="d">
+            <option v-if="i===localDate" :value="i" selected>{{ props.selectListArray[i] }}</option>
+            <option v-else :value="i">{{ d }}</option>
+          </template>
+        </select>
+        <i class="fas fa-edit" @click="onEditList"></i>
+      </div>
+      <div :class="disabledClass">
+        <input type="text" :value="localList" @blur="onSaveList('list')">
+        <i class="fas fa-edit" @click="onEditList"></i>
+      </div>
     </div>
     <div class="settings__listArea__btnWrap">
-      <button @click="onEditList">{{ editBtnText[editBtnTextIndex] }}</button>
+      
       <button>このToDoを終了</button>
     </div>
   </li>
@@ -60,16 +85,42 @@
   }
   &__list {
     display: flex;
-    &.disabled {
+    padding: 0 10px;
+    div {
+      position: relative;
+      &:first-child {
+        width: 100px;
+      }
+      &:last-child {
+        width: 100%;
+      }
+    }
+    .disabled {
       select, input {
         pointer-events: none;
         border: none;
         color: #999;
       }
+      i {
+        display: block;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+      }
     }
     input {
-      width: 100%;
-      padding: 10px;
+      width:100%;
+      padding: 5px;
+      margin: 5px 10px;
+    }
+    select {
+      margin: 0;
+      padding: 5px;
+    }
+    i {
+      margin: 5px;
+      cursor: pointer;
+      display: none;
     }
   }
   &__btnWrap {
