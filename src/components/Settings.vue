@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import {ref, watch, computed} from 'vue';
+  import {ref} from 'vue';
 
   const disabledClass = ref('disabled');
 
@@ -69,7 +69,6 @@
       </div>
     </div>
     <div class="settings__listArea__btnWrap">
-      
       <button>このToDoを終了</button>
     </div>
   </li>

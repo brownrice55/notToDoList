@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import {ref} from 'vue';
+  import {ref, onMounted} from 'vue';
 
   interface Props {
     id: number;
@@ -7,6 +7,8 @@
     date: number;
     done: boolean;
     selectListArray: string[];
+    customize: number[];
+    youbi: string[];
   }
 
   interface Emits {
@@ -25,14 +27,39 @@
     // doneにデータを追加してローカルストレージに保管する
     localDone.value = !localDone.value;
     emit('checkDoneList', props.id, localDone.value);
-  }; 
-  
+  };
+
+  const showSelectListData = ref('');
+  let showCustomizeYoubi:string = '';
+
+  onMounted(
+    (): void => {
+      if(props.date===5) {
+        if(props.customize.length==2 && props.customize[0]===0 && props.customize[1]===6) {//土日だけの時
+          showSelectListData.value = props.selectListArray[2];
+        }
+        else {
+          for(let cnt=0,len=props.customize.length;cnt<len;++cnt) {
+            showCustomizeYoubi += props.youbi[props.customize[cnt]] + '曜日';
+            if(cnt<len-1) {
+              showCustomizeYoubi += '、';
+            }
+          }
+          showSelectListData.value = showCustomizeYoubi;
+        }
+      }
+      else {
+        showSelectListData.value = props.selectListArray[props.date];
+      }
+    }
+  );
+
 </script>
 
 <template>
   <li>
     <input type="checkbox" :id="'check' + props.id" :checked="localDone" @change="checkDoneTodo">
-    <label :for="'check' + props.id" :class="localDone?'done':''">{{ list }} {{ selectListArray[date] }}</label>
+    <label :for="'check' + props.id" :class="localDone?'done':''">{{ list }}<span>{{ showSelectListData }}</span></label>
   </li>
 </template>
 
@@ -52,6 +79,10 @@
       position: relative;
       padding: 0 0 0 20px;
       cursor: pointer;
+      span {
+        font-size: 80%;
+        background: #eee;
+      }
       &.done {
         text-decoration: line-through;
       }
