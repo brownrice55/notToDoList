@@ -35,7 +35,7 @@ tsconfig.config.json
 tsconfig.json
 vite.config.ts
 .vscode/extensions.json
-src/assets/
+src/assets/_destyle.css
 src/main.ts
 .eslintrc.cjs
 env.d.ts

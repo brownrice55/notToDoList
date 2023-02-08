@@ -35,22 +35,15 @@
   onMounted(
     (): void => {
       if(props.date===5) {
-        if(props.customize.length==2 && props.customize[0]===0 && props.customize[1]===6) {//土日だけの時
-          showSelectListData.value = props.selectListArray[2];
-        }
-        else {
-          for(let cnt=0,len=props.customize.length;cnt<len;++cnt) {
-            showCustomizeYoubi += props.youbi[props.customize[cnt]] + '曜日';
-            if(cnt<len-1) {
-              showCustomizeYoubi += '、';
-            }
+        for(let cnt=0,len=props.customize.length;cnt<len;++cnt) {
+          showCustomizeYoubi += props.youbi[props.customize[cnt]] + '曜日';
+          if(cnt<len-1) {
+            showCustomizeYoubi += '、';
           }
           showSelectListData.value = showCustomizeYoubi;
         }
       }
-      else {
-        showSelectListData.value = props.selectListArray[props.date];
-      }
+      showSelectListData.value = props.selectListArray[props.date];
     }
   );
 

@@ -68,9 +68,6 @@
         <i class="fas fa-edit" @click="onEditList"></i>
       </div>
     </div>
-    <div class="settings__listArea__btnWrap">
-      <button>このToDoを終了</button>
-    </div>
   </li>
 </template>
 

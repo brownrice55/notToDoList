@@ -52,7 +52,7 @@ const showPage = (aPage: string): void => {
 };
 
 // TodaysNotToDoList
-const youbi:string[] = ['日','月','火','水','木','金','土'];
+const youbi:string[] = ['日','月','火','水','木','金','土','祝'];
 const today = new Date();
 const todaysDate = { year:today.getFullYear(), month:(today.getMonth()+1), day:today.getDate(), youbi:today.getDay() };
 
@@ -83,7 +83,7 @@ past7Days[6] = { year:sevendaysbefore.getFullYear(), month:(sevendaysbefore.getM
 
 // Settings
 const selectListIndex = ref(0);
-const selectListArray: string[] = ['毎日', '平日だけ（祝日は含まない？）', '土日だけ', '土日祝だけ', '祝日だけ', 'その他'];
+const selectListArray: string[] = ['毎日', '平日だけ（祝日含まない）', '平日だけ（祝日含む）', '土日だけ', '土日祝だけ', 'その他'];
 const inputList = ref('');
 const listDataArray = ref([]);
 
@@ -97,8 +97,35 @@ const onChangeRoutine = (): void => {
   isModal.value = !isModal.value;
 };
 
+const compareNumber = (a:number, b:number) => {
+  return a - b;
+};
+
 const onAddNewList = (routine:number, customize:number[]) : void => {
   isModal.value = !isModal.value;
+
+  if(customize.length) {
+    customize.sort(compareNumber);
+
+    if(routine===5) {
+      if(customize.length==8 && customize[0]===0 && customize[7]===7) {//毎日の時
+        routine = 0;
+      }
+      else if(customize.length==5 && customize[0]===1 && customize[4]===5) {//平日だけ（祝日含まない）の時
+        routine = 1;
+      }
+      else if(customize.length==6 && customize[0]===1 && customize[5]===7) {//平日だけ（祝日含む）の時
+        routine = 2;
+      }
+      else if(customize.length==2 && customize[0]===0 && customize[1]===6) {//土日だけの時
+        routine = 3;
+      }
+      else if(customize.length==3 && customize[0]===0 && customize[2]===7) {//土日祝だけの時
+        routine = 4;
+      }
+    }
+
+  }
 
   const notToDoListArray = [...notToDoList];
   notToDoList.set(notToDoListArray.length, {id:notToDoListArray.length, list:inputList.value, date:routine, customize:customize, stop:0, done:false});
@@ -161,7 +188,7 @@ const isTodaysList = (aDate:number, aCustomize:number[]) => {
     </nav>
   </header>
 
-  <main>
+  <main class="main">
     <section v-if="showPageKey==='todaysList'" class="todaysList">
       <h2 class="todaysList__title">{{ todaysDate.year }}年{{ todaysDate.month }}月{{ todaysDate.day }}日（{{ youbi[todaysDate.youbi] }}）のしないことリスト</h2>
       <ul class="todaysList__list">
@@ -189,16 +216,18 @@ const isTodaysList = (aDate:number, aCustomize:number[]) => {
         </div>
       </div>
       <div class="settings___desc">
-        <p>例）平日　21時以降はブルーライトを浴びない</p>
+        <p>例）21時以降はブルーライトを浴びない</p>
       </div>
       <div v-if="isModal" class="overlay">
         <ModalSelectRoutine :selectListArray="selectListArray" :youbi="youbi" @addNewList="onAddNewList"></ModalSelectRoutine>
       </div>
       <div class="settings__listArea" v-if="isNotToDoData">
-        <h3>設定済みのしないことリスト</h3>
+        <h3>しないことリスト</h3>
+        <h4>現在進行中</h4>
         <ul>
           <Settings v-for="[id, data] in notToDoList" :key="id" :list="data.list" :id="id" :date="data.date" :selectListArray="selectListArray" @editList="onEditList" />
         </ul>
+        <h4>終了済み</h4>
       </div>
     </section>
   </main>
@@ -213,15 +242,32 @@ const isTodaysList = (aDate:number, aCustomize:number[]) => {
 body {
   font-size: 1rem;
 }
+.header, .main {
+  width: 80%;
+  max-width: 600px;
+  text-align: center;
+  margin: 0 auto;
+  padding: 0 auto;
+  section {
+    text-align: left;
+  }
+}
 .header {
-  button {
+  position: relative;
+  height: 20px;
+  &__openBtn {
     z-index: 11;
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 10px;
+    right: -10px;
+    &.active {
+      color: #fff;
+    }
   }
   &__nav {
     position: fixed;
+    top: 0;
+    left: 0;
     z-index: -1;
     opacity: 0;
     width: 100%;
