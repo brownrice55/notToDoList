@@ -43,7 +43,9 @@
           showSelectListData.value = showCustomizeYoubi;
         }
       }
-      showSelectListData.value = props.selectListArray[props.date];
+      else {
+        showSelectListData.value = props.selectListArray[props.date];
+      }
     }
   );
 

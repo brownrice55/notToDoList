@@ -2,12 +2,14 @@
   import {ref, watch} from 'vue';
 
   interface Props {
+    currentId: number;
+    addAndEditList: string;
     selectListArray: string[];
     youbi: string[];
   }
 
   interface Emits {
-    (event: 'addNewList', routine:number, customize:number[]): void;
+    (event: 'addNewList', currentId:number, routine:number, customize:number[], addAndEditList:string): void;
   }
 
   const props = defineProps<Props>();
@@ -21,10 +23,10 @@
 
   const onAddNewList = () => {
     if(selectRoutineIndex.value===5) {
-      emit('addNewList', selectRoutineIndex.value, checkYoubiIndex.value);
+      emit('addNewList', props.currentId, selectRoutineIndex.value, checkYoubiIndex.value, props.addAndEditList);
     }
     else {
-      emit('addNewList', selectRoutineIndex.value, []);
+      emit('addNewList', props.currentId, selectRoutineIndex.value, [], props.addAndEditList);
     }
   };
 

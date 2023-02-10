@@ -3,15 +3,13 @@ import TodaysNotToDoList from './components/TodaysNotToDoList.vue'
 import WeeklyNotToDoList from './components/WeeklyNotToDoList.vue'
 import Total from './components/Total.vue'
 import Settings from './components/Settings.vue'
-import ModalSelectRoutine from './components/ModalSelectRoutine.vue'
 
-import {ref, onMounted, watch} from 'vue';
+import {ref, onMounted} from 'vue';
 
 const activeClass = ref('');
 const activeClassCnt = ref(0);
 const showPageKey = ref('');
 const isNotToDoData = ref(true);
-const inputListAlert = ref('');
 
 let notToDoList = new Map<number, notToDoListType>();
 const notToDoListJsonStr = localStorage.getItem('notToDoList');
@@ -84,85 +82,28 @@ past7Days[6] = { year:sevendaysbefore.getFullYear(), month:(sevendaysbefore.getM
 // Settings
 const selectListIndex = ref(0);
 const selectListArray: string[] = ['毎日', '平日だけ（祝日含まない）', '平日だけ（祝日含む）', '土日だけ', '土日祝だけ', 'その他'];
-const inputList = ref('');
-const listDataArray = ref([]);
 
-// 新規入力の頻度のモーダル部分
-const isModal = ref(false);
-const onChangeRoutine = (): void => {
-  if(!inputList.value.length) {
-    inputListAlert.value = 'しないことを入力してください。';
-    return;
-  }
-  isModal.value = !isModal.value;
-};
 
-const compareNumber = (a:number, b:number) => {
-  return a - b;
-};
-
-const onAddNewList = (routine:number, customize:number[]) : void => {
-  isModal.value = !isModal.value;
-
-  if(customize.length) {
-    customize.sort(compareNumber);
-
-    if(routine===5) {
-      if(customize.length==8 && customize[0]===0 && customize[7]===7) {//毎日の時
-        routine = 0;
-      }
-      else if(customize.length==5 && customize[0]===1 && customize[4]===5) {//平日だけ（祝日含まない）の時
-        routine = 1;
-      }
-      else if(customize.length==6 && customize[0]===1 && customize[5]===7) {//平日だけ（祝日含む）の時
-        routine = 2;
-      }
-      else if(customize.length==2 && customize[0]===0 && customize[1]===6) {//土日だけの時
-        routine = 3;
-      }
-      else if(customize.length==3 && customize[0]===0 && customize[2]===7) {//土日祝だけの時
-        routine = 4;
-      }
-    }
-
-  }
-
-  const notToDoListArray = [...notToDoList];
-  notToDoList.set(notToDoListArray.length, {id:notToDoListArray.length, list:inputList.value, date:routine, customize:customize, stop:0, done:false});
-  localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
-  inputList.value = '';
-  selectListIndex.value = 0;
-  if(!isNotToDoData.value) {
-    isNotToDoData.value = true;
-  }
-};
-
-const onEditList = (id:number, aEditedDate:number, aEditedList:string) : void => {
-  const editData = notToDoList.get(id);
+const onEditList = (aId:number, aEditedList:string) : void => {
+  const editData = notToDoList.get(aId);
   if(editData===undefined) { return; }
   if(aEditedList!=='undefined') {
-    notToDoList.set(id, {id:id, list:aEditedList, date:editData.date, customize:editData.customize, stop:0, done:false});
-  }
-  else if(aEditedDate!==1000) {
-    notToDoList.set(id, {id:id, list:editData.list, date:aEditedDate, customize:editData.customize, stop:0, done:false});
+    notToDoList.set(aId, {id:aId, list:aEditedList, date:editData.date, customize:editData.customize, stop:0, done:false});
   }
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
 };
-
-watch(inputList, 
-  ():void => {
-    inputListAlert.value = (inputList.value.length>30) ? '30字以内で入力してください' : '';
-  }
-);
 
 const isTodaysList = (aDate:number, aCustomize:number[]) => {
   if(aDate==0) {//毎日の時
     return true;
   }
-  if(aDate==1 && todaysDate.youbi!==0 && todaysDate.youbi!==6) {//平日の時
+  if(aDate==1 && todaysDate.youbi!==0 && todaysDate.youbi!==6) {//平日の時***後で変更（祝日含まないので）
     return true;
   }
-  if(aDate==2 && todaysDate.youbi===0 || todaysDate.youbi===6) {//土日の時
+  if(aDate==2 && todaysDate.youbi!==0 && todaysDate.youbi!==6) {//平日（祝日含む）の時
+    return true;
+  }
+  if(aDate==3 && todaysDate.youbi===0 || todaysDate.youbi===6) {//土日の時
     return true;
   }
   if(aDate==5) {//その他の時
@@ -173,6 +114,18 @@ const isTodaysList = (aDate:number, aCustomize:number[]) => {
   }
   return false;
 };
+
+const onAddNewList = (aId:number, routine:number, customize:number[], list:string) => {
+  const notToDoListArray = [...notToDoList];
+  let id = (aId===100000) ? notToDoListArray.length : aId;
+  notToDoList.set(id, {id:id, list:list, date:routine, customize:customize, stop:0, done:false});
+  localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
+  selectListIndex.value = 0;
+  if(!isNotToDoData.value) {
+    isNotToDoData.value = true;
+  }
+};
+
 </script>
 
 <template>
@@ -204,31 +157,7 @@ const isTodaysList = (aDate:number, aCustomize:number[]) => {
       <Total />
     </section>
     <section v-if="showPageKey==='settings'" class="settings">
-      <h2>設定</h2>
-      <p>あなたは<b>何をしない</b>ですか？</p>
-      <div class="settings___desc">
-        {{ inputListAlert }}
-      </div>
-      <div class="settings__inputArea">
-        <input type="text" v-model="inputList">
-        <div class="settings__inputArea__btnWrap">
-          <button @click="onChangeRoutine">追加</button>
-        </div>
-      </div>
-      <div class="settings___desc">
-        <p>例）21時以降はブルーライトを浴びない</p>
-      </div>
-      <div v-if="isModal" class="overlay">
-        <ModalSelectRoutine :selectListArray="selectListArray" :youbi="youbi" @addNewList="onAddNewList"></ModalSelectRoutine>
-      </div>
-      <div class="settings__listArea" v-if="isNotToDoData">
-        <h3>しないことリスト</h3>
-        <h4>現在進行中</h4>
-        <ul>
-          <Settings v-for="[id, data] in notToDoList" :key="id" :list="data.list" :id="id" :date="data.date" :selectListArray="selectListArray" @editList="onEditList" />
-        </ul>
-        <h4>終了済み</h4>
-      </div>
+      <Settings :notToDoList="notToDoList" :selectListArray="selectListArray" :youbi="youbi" :isNotToDoData="isNotToDoData" @addNewList="onAddNewList" @editList="onEditList" />
     </section>
   </main>
 </template>
@@ -297,47 +226,4 @@ body {
   }
 }
 
-.settings {
-  b {
-    font-weight: bold;
-  }
-  &__inputArea {
-    position:relative;
-    width: 100%;
-    input {
-      width: 100%;
-      padding: 10px;
-      background: #eee;
-    }
-    select {
-      padding: 10px;
-    }
-    &__btnWrap {
-      position: absolute;
-      top: 0;
-      right: 0;
-      background: #000;
-      color: #fff;
-      padding: 9px;
-      border-radius: 0 4px 4px 0;
-    }
-  }
-  &___desc {
-    padding: 10px 0;
-    font-size: rem(12px);
-  }
-}
-
-
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  text-align: center;
-  z-index: 10;
-  color: #fff;
-}
 </style>
