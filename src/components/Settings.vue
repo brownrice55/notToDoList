@@ -31,12 +31,23 @@
     focusElm.focus();
   };
 
+  const editListAlert = ref('');
   const onSaveList = (aId:number, aList:string): void => {
     const e:any = event;
     const targetElm = e.target as HTMLInputElement;
+    if(!targetElm.value) {
+      editListAlert.value = 'しないことを入力してください。';
+      targetElm.focus();
+      return;
+    }
+    if(targetElm.value.length>30) {
+      editListAlert.value = '30文字以内で入力してください。';
+      targetElm.focus();
+      return;
+    }
+    editListAlert.value = '';
     const targetParentElm =  targetElm.parentNode as HTMLElement;
     targetParentElm.classList.toggle('disabled');
-    
     if(targetElm.value!==aList) {
       onEditListBtnClick(aId, targetElm.value);
     }
