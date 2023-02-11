@@ -76,6 +76,8 @@
     return a - b;
   };
 
+  const notToDoListState = ref();
+
   const onAddNewList = (currentId:number, routine:number, customize:number[], aInputList:string, stopTodo:string) : void => {
     isModal.value = !isModal.value;
     if(customize.length) {
@@ -100,6 +102,7 @@
       }
     }
     emit('addNewList', currentId, routine, customize, aInputList, stopTodo);
+    notToDoListState.value = getNotToDoListState(props.notToDoList);
     if(currentId===100000) {
       inputList.value = '';
     }
@@ -129,13 +132,40 @@
   };
 
   const showStopPeriod = (aStopTodo:string) => {
-    if(aStopTodo==='nolimit') {
+    if(aStopTodo==='nolimit' || !aStopTodo) {//***!aStopTodoは不要なはずだが値が入っていないことがあるので後で要確認 */
       return '期限:なし';
     }
     else {
       return '期限:' + aStopTodo + 'まで';
     }
   };
+
+  interface notToDoListType {
+    id: number;
+    list: string;
+    routine: number;
+    stop: string;
+    done: boolean;
+    customize: number[];
+  }
+  
+  const todayMs = new Date(props.todaysDate.year + '/' + props.todaysDate.month + '/' + props.todaysDate.day).getTime();
+
+  const getNotToDoListState = (aData:any) => {
+    const newListNow = new Map<number, notToDoListType>();
+    const newListStop = new Map<number, notToDoListType>();
+    aData.forEach((val:notToDoListType, key:number) => {
+      if(val.stop==='nolimit' || new Date(val.stop).getTime()-todayMs>=0) {
+        newListNow.set(key, val);
+      }
+      else {
+        newListStop.set(key, val);
+      }
+    });
+    return [newListNow, newListStop];
+  }
+
+  notToDoListState.value = getNotToDoListState(props.notToDoList);
 
 </script>
 
@@ -159,23 +189,42 @@
   </div>
   <div class="settings__listArea" v-if="props.isNotToDoData">
     <h3>しないことリスト</h3>
-    <h4>現在進行中のリスト</h4>
-    <ul>
-      <li  v-for="[id, data] in props.notToDoList" :key="data">
-        <div class="settings__listArea__list">
-          <div :class="disabledClass">
-            <span>{{ showRoutine(data.routine, data.customize) }}</span><br>
-            <span>{{ showStopPeriod(data.stop) }}</span>
-            <i class="fas fa-edit" @click="onChangeRoutine(id, data.list)"></i>
+    <template v-if="notToDoListState[0].size">
+      <h4>現在進行中のリスト</h4>
+      <ul>
+        <li v-for="[id, data] in notToDoListState[0]" :key="data">
+          <div class="settings__listArea__list">
+            <div :class="disabledClass">
+              <span>{{ showRoutine(data.routine, data.customize) }}</span><br>
+              <span>{{ showStopPeriod(data.stop) }}</span>
+              <i class="fas fa-edit" @click="onChangeRoutine(id, data.list)"></i>
+            </div>
+            <div :class="disabledClass">
+              <input type="text" :value="data.list" @blur="onSaveList(id, data.list)">
+              <i class="fas fa-edit" @click="onEditList"></i>
+            </div>
           </div>
-          <div :class="disabledClass">
-            <input type="text" :value="data.list" @blur="onSaveList(id, data.list)">
-            <i class="fas fa-edit" @click="onEditList"></i>
+        </li>
+      </ul>
+    </template>
+    <template v-if="notToDoListState[1].size">
+      <h4>終了済みのリスト</h4>
+      <ul>
+        <li  v-for="[id, data] in notToDoListState[1]" :key="data">
+          <div class="settings__listArea__list">
+            <div :class="disabledClass">
+              <span>{{ showRoutine(data.routine, data.customize) }}</span><br>
+              <span>{{ showStopPeriod(data.stop) }}</span>
+              <i class="fas fa-edit" @click="onChangeRoutine(id, data.list)"></i>
+            </div>
+            <div :class="disabledClass">
+              <input type="text" :value="data.list" @blur="onSaveList(id, data.list)">
+              <i class="fas fa-edit" @click="onEditList"></i>
+            </div>
           </div>
-        </div>
-      </li>
-    </ul>
-    <h4>終了済みのリスト</h4>
+        </li>
+      </ul>
+    </template>
   </div>
 </template>
 
