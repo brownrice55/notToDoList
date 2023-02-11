@@ -9,11 +9,12 @@
     selectListArray: string[];
     youbi: string[];
     isNotToDoData: boolean;
+    todaysDate: any;
   }
 
   interface Emits {
     (event: 'editList', id:number, list:string): void;
-    (event: 'addNewList', id:number, routine:number, customize:number[], list:string): void;
+    (event: 'addNewList', id:number, routine:number, customize:number[], list:string, stopTodo:string): void;
   }
 
   const props = defineProps<Props>();
@@ -75,7 +76,7 @@
     return a - b;
   };
 
-  const onAddNewList = (currentId:number, routine:number, customize:number[], aInputList:string) : void => {
+  const onAddNewList = (currentId:number, routine:number, customize:number[], aInputList:string, stopTodo:string) : void => {
     isModal.value = !isModal.value;
     if(customize.length) {
       customize.sort(compareNumber);
@@ -98,7 +99,7 @@
         }
       }
     }
-    emit('addNewList', currentId, routine, customize, aInputList);
+    emit('addNewList', currentId, routine, customize, aInputList, stopTodo);
     if(currentId===100000) {
       inputList.value = '';
     }
@@ -127,6 +128,15 @@
     }
   };
 
+  const showStopPeriod = (aStopTodo:string) => {
+    if(aStopTodo==='nolimit') {
+      return '期限:なし';
+    }
+    else {
+      return '期限:' + aStopTodo + 'まで';
+    }
+  };
+
 </script>
 
 <template>
@@ -145,7 +155,7 @@
     <p>例）21時以降はブルーライトを浴びない</p>
   </div>
   <div v-if="isModal" class="overlay">
-    <ModalSelectRoutine :selectListArray="selectListArray" :youbi="youbi" :currentId="currentId" :addAndEditList="addAndEditList" @addNewList="onAddNewList"></ModalSelectRoutine>
+    <ModalSelectRoutine :selectListArray="selectListArray" :youbi="youbi" :currentId="currentId" :addAndEditList="addAndEditList" :todaysDate="todaysDate" @addNewList="onAddNewList"></ModalSelectRoutine>
   </div>
   <div class="settings__listArea" v-if="props.isNotToDoData">
     <h3>しないことリスト</h3>
@@ -154,7 +164,8 @@
       <li  v-for="[id, data] in props.notToDoList" :key="data">
         <div class="settings__listArea__list">
           <div :class="disabledClass">
-            <span>{{ showRoutine(data.routine, data.customize) }}</span>
+            <span>{{ showRoutine(data.routine, data.customize) }}</span><br>
+            <span>{{ showStopPeriod(data.stop) }}</span>
             <i class="fas fa-edit" @click="onChangeRoutine(id, data.list)"></i>
           </div>
           <div :class="disabledClass">

@@ -23,7 +23,7 @@ interface notToDoListType {
   id: number;
   list: string;
   routine: number;
-  stop: number;
+  stop: string;
   done: boolean;
   customize: number[];
 }
@@ -57,7 +57,7 @@ const todaysDate = { year:today.getFullYear(), month:(today.getMonth()+1), day:t
 const onCheckDoneList = (id:number, done:boolean) : void => {
   const editData = notToDoList.get(id);
   if(editData) {
-    notToDoList.set(id, {id:id, list:editData.list, routine:editData.routine, customize:editData.customize, stop:0, done:done});
+    notToDoList.set(id, {id:id, list:editData.list, routine:editData.routine, customize:editData.customize, stop:'', done:done});
   }
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
 }
@@ -88,7 +88,7 @@ const onEditList = (aId:number, aEditedList:string) : void => {
   const editData = notToDoList.get(aId);
   if(editData===undefined) { return; }
   if(aEditedList!=='undefined') {
-    notToDoList.set(aId, {id:aId, list:aEditedList, routine:editData.routine, customize:editData.customize, stop:0, done:false});
+    notToDoList.set(aId, {id:aId, list:aEditedList, routine:editData.routine, customize:editData.customize, stop:'', done:false});
   }
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
 };
@@ -103,7 +103,7 @@ const isTodaysList = (aRoutine:number, aCustomize:number[]) => {
   if(aRoutine==2 && todaysDate.youbi!==0 && todaysDate.youbi!==6) {//平日（祝日含む）の時
     return true;
   }
-  if(aRoutine==3 && todaysDate.youbi===0 || todaysDate.youbi===6) {//土日の時
+  if(aRoutine==3 && (todaysDate.youbi===0 || todaysDate.youbi===6)) {//土日の時
     return true;
   }
   if(aRoutine==5) {//その他の時
@@ -115,10 +115,10 @@ const isTodaysList = (aRoutine:number, aCustomize:number[]) => {
   return false;
 };
 
-const onAddNewList = (aId:number, routine:number, customize:number[], list:string) => {
+const onAddNewList = (aId:number, routine:number, customize:number[], list:string, stopTodo:string) => {
   const notToDoListArray = [...notToDoList];
   let id = (aId===100000) ? notToDoListArray.length : aId;
-  notToDoList.set(id, {id:id, list:list, routine:routine, customize:customize, stop:0, done:false});
+  notToDoList.set(id, {id:id, list:list, routine:routine, customize:customize, stop:stopTodo, done:false});
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
   selectListIndex.value = 0;
   if(!isNotToDoData.value) {
@@ -157,7 +157,7 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
       <Total />
     </section>
     <section v-if="showPageKey==='settings'" class="settings">
-      <Settings :notToDoList="notToDoList" :selectListArray="selectListArray" :youbi="youbi" :isNotToDoData="isNotToDoData" @addNewList="onAddNewList" @editList="onEditList" />
+      <Settings :notToDoList="notToDoList" :selectListArray="selectListArray" :youbi="youbi" :isNotToDoData="isNotToDoData" :todaysDate="todaysDate" @addNewList="onAddNewList" @editList="onEditList" />
     </section>
   </main>
 </template>

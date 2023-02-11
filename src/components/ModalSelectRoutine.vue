@@ -6,10 +6,11 @@
     addAndEditList: string;
     selectListArray: string[];
     youbi: string[];
+    todaysDate: any;
   }
 
   interface Emits {
-    (event: 'addNewList', currentId:number, routine:number, customize:number[], addAndEditList:string): void;
+    (event: 'addNewList', currentId:number, routine:number, customize:number[], addAndEditList:string, stopTodo:string): void;
   }
 
   const props = defineProps<Props>();
@@ -23,30 +24,51 @@
 
   const onAddNewList = () => {
     if(selectRoutineIndex.value===5) {
-      emit('addNewList', props.currentId, selectRoutineIndex.value, checkYoubiIndex.value, props.addAndEditList);
+      emit('addNewList', props.currentId, selectRoutineIndex.value, checkYoubiIndex.value, props.addAndEditList, stopTodo.value);
     }
     else {
-      emit('addNewList', props.currentId, selectRoutineIndex.value, [], props.addAndEditList);
+      emit('addNewList', props.currentId, selectRoutineIndex.value, [], props.addAndEditList, stopTodo.value);
     }
   };
 
   watch(selectRoutineIndex, 
     ():void => {
-      if(selectRoutineIndex.value===5) {
-        isOther.value = true;
-      }
-      else {
-        isOther.value = false;
-      }
+      isOther.value = (selectRoutineIndex.value===5) ? true : false;
     }
   );
+
+  // 終了日の設定
+  const getPeriod = (aYear:number) => {
+    const year:number = props.todaysDate.year + aYear;
+    const month:string = (props.todaysDate.month<10) ? '0' + props.todaysDate.month : props.todaysDate.month;
+    const day:string = (props.todaysDate.day<10) ? '0' + props.todaysDate.day : props.todaysDate.day;
+    const date:string = year + '-' + month + '-' + day;
+    return date;
+  };
+  const stopTodoDate = ref(getPeriod(0));
+  const stopMaxTodoDate = ref(getPeriod(10));
+
+  const isStopTodo = ref(false);
+  const stopTodo = ref('nolimit');
+
+  watch(stopTodo, 
+    ():void => {
+      isStopTodo.value = (stopTodo.value==='nolimit') ? false : true;
+    }
+  );
+
+  const getStopTodoDate = (event:Event) => {
+    const targetElm = event.target as HTMLInputElement;
+    stopTodo.value = targetElm.value;
+    stopTodoDate.value = targetElm.value;
+  };
 
 </script>
 
 <template>
   <ul>
     <li v-for="(data,index) in props.selectListArray" :key="data">
-      <input :id="'radio' + index" type="radio" :value="index" v-model="selectRoutineIndex" />
+      <input :id="'radio' + index" type="radio" :value="index" v-model="selectRoutineIndex">
       <label :for="'radio' + index">{{ data }}</label>
     </li>
   </ul>
@@ -59,8 +81,13 @@
     </ul>
   </div>
   <div class="settings__inputArea__stop">
-    <label for="start">終了日:</label>
-    <input type="date" id="start" name="trip-start" value="2023-02-10" min="2023-02-10" max="2023-03-10">
+    <input id="radio_end1" type="radio" value="nolimit" v-model="stopTodo">
+    <label for="radio_end1">終了日を指定しない</label>
+    <input id="radio_end2" type="radio" :value="stopTodoDate" @click="getStopTodoDate">
+    <label for="radio_end2">終了日を指定する</label>
+    <template v-if="isStopTodo">
+      <input type="date" :min="stopTodoDate" :max="stopMaxTodoDate" :value="stopTodoDate" @change="getStopTodoDate">
+    </template>
   </div>
   <button @click="onAddNewList">保存する</button>
 </template>
