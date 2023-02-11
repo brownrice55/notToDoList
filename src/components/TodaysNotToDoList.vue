@@ -4,7 +4,7 @@
   interface Props {
     id: number;
     list: string;
-    date: number;
+    routine: number;
     done: boolean;
     selectListArray: string[];
     customize: number[];
@@ -34,7 +34,7 @@
 
   onMounted(
     (): void => {
-      if(props.date===5) {
+      if(props.routine===5) {
         for(let cnt=0,len=props.customize.length;cnt<len;++cnt) {
           showCustomizeYoubi += props.youbi[props.customize[cnt]] + '曜日';
           if(cnt<len-1) {
@@ -44,7 +44,7 @@
         }
       }
       else {
-        showSelectListData.value = props.selectListArray[props.date];
+        showSelectListData.value = props.selectListArray[props.routine];
       }
     }
   );

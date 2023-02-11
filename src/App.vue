@@ -22,7 +22,7 @@ if(notToDoListJsonStr!=='undefined') {
 interface notToDoListType {
   id: number;
   list: string;
-  date: number;
+  routine: number;
   stop: number;
   done: boolean;
   customize: number[];
@@ -57,7 +57,7 @@ const todaysDate = { year:today.getFullYear(), month:(today.getMonth()+1), day:t
 const onCheckDoneList = (id:number, done:boolean) : void => {
   const editData = notToDoList.get(id);
   if(editData) {
-    notToDoList.set(id, {id:id, list:editData.list, date:editData.date, customize:editData.customize, stop:0, done:done});
+    notToDoList.set(id, {id:id, list:editData.list, routine:editData.routine, customize:editData.customize, stop:0, done:done});
   }
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
 }
@@ -88,25 +88,25 @@ const onEditList = (aId:number, aEditedList:string) : void => {
   const editData = notToDoList.get(aId);
   if(editData===undefined) { return; }
   if(aEditedList!=='undefined') {
-    notToDoList.set(aId, {id:aId, list:aEditedList, date:editData.date, customize:editData.customize, stop:0, done:false});
+    notToDoList.set(aId, {id:aId, list:aEditedList, routine:editData.routine, customize:editData.customize, stop:0, done:false});
   }
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
 };
 
-const isTodaysList = (aDate:number, aCustomize:number[]) => {
-  if(aDate==0) {//毎日の時
+const isTodaysList = (aRoutine:number, aCustomize:number[]) => {
+  if(aRoutine==0) {//毎日の時
     return true;
   }
-  if(aDate==1 && todaysDate.youbi!==0 && todaysDate.youbi!==6) {//平日の時***後で変更（祝日含まないので）
+  if(aRoutine==1 && todaysDate.youbi!==0 && todaysDate.youbi!==6) {//平日の時***後で変更（祝日含まないので）
     return true;
   }
-  if(aDate==2 && todaysDate.youbi!==0 && todaysDate.youbi!==6) {//平日（祝日含む）の時
+  if(aRoutine==2 && todaysDate.youbi!==0 && todaysDate.youbi!==6) {//平日（祝日含む）の時
     return true;
   }
-  if(aDate==3 && todaysDate.youbi===0 || todaysDate.youbi===6) {//土日の時
+  if(aRoutine==3 && todaysDate.youbi===0 || todaysDate.youbi===6) {//土日の時
     return true;
   }
-  if(aDate==5) {//その他の時
+  if(aRoutine==5) {//その他の時
     const isToday = (aCustomize.some(val => val===todaysDate.youbi)) ? true : false;
     if(isToday) {
       return true;
@@ -118,7 +118,7 @@ const isTodaysList = (aDate:number, aCustomize:number[]) => {
 const onAddNewList = (aId:number, routine:number, customize:number[], list:string) => {
   const notToDoListArray = [...notToDoList];
   let id = (aId===100000) ? notToDoListArray.length : aId;
-  notToDoList.set(id, {id:id, list:list, date:routine, customize:customize, stop:0, done:false});
+  notToDoList.set(id, {id:id, list:list, routine:routine, customize:customize, stop:0, done:false});
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
   selectListIndex.value = 0;
   if(!isNotToDoData.value) {
@@ -146,7 +146,7 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
       <h2 class="todaysList__title">{{ todaysDate.year }}年{{ todaysDate.month }}月{{ todaysDate.day }}日（{{ youbi[todaysDate.youbi] }}）のしないことリスト</h2>
       <ul class="todaysList__list">
         <template v-for="[id, data] in notToDoList" :key="id">
-          <TodaysNotToDoList v-if="isTodaysList(data.date, data.customize)" :list="data.list" :id="id" :date="data.date" :customize="data.customize" :done="data.done" :selectListArray="selectListArray" :youbi="youbi" @checkDoneList="onCheckDoneList" />
+          <TodaysNotToDoList v-if="isTodaysList(data.routine, data.customize)" :list="data.list" :id="id" :routine="data.routine" :customize="data.customize" :done="data.done" :selectListArray="selectListArray" :youbi="youbi" @checkDoneList="onCheckDoneList" />
         </template>
       </ul>
     </section>

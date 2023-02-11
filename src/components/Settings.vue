@@ -110,7 +110,6 @@
     }
   );
 
-
   const showRoutine = (aRoutine:number, aCustomize:number[]) => {
     if(aRoutine===5) {
       let showCustomizeYoubi:string = '';
@@ -150,12 +149,12 @@
   </div>
   <div class="settings__listArea" v-if="props.isNotToDoData">
     <h3>しないことリスト</h3>
-    <h4>現在進行中</h4>
+    <h4>現在進行中のリスト</h4>
     <ul>
       <li  v-for="[id, data] in props.notToDoList" :key="data">
         <div class="settings__listArea__list">
           <div :class="disabledClass">
-            <span>{{ showRoutine(data.date, data.customize) }}</span>
+            <span>{{ showRoutine(data.routine, data.customize) }}</span>
             <i class="fas fa-edit" @click="onChangeRoutine(id, data.list)"></i>
           </div>
           <div :class="disabledClass">
@@ -165,7 +164,7 @@
         </div>
       </li>
     </ul>
-    <h4>終了済み</h4>
+    <h4>終了済みのリスト</h4>
   </div>
 </template>
 
