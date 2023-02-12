@@ -26,6 +26,7 @@ interface notToDoListType {
   stop: string;
   done: boolean;
   customize: number[];
+  stopTodoDate: string;
 }
 
 const weekyListData = JSON.parse(localStorage.getItem('weeklyNotToDoList'));
@@ -57,7 +58,7 @@ const todaysDate = { year:today.getFullYear(), month:(today.getMonth()+1), day:t
 const onCheckDoneList = (id:number, done:boolean) : void => {
   const editData = notToDoList.get(id);
   if(editData) {
-    notToDoList.set(id, {id:id, list:editData.list, routine:editData.routine, customize:editData.customize, stop:'', done:done});
+    notToDoList.set(id, {id:id, list:editData.list, routine:editData.routine, customize:editData.customize, stop:editData.stop, stopTodoDate:editData.stopTodoDate, done:done});
   }
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
 }
@@ -88,7 +89,7 @@ const onEditList = (aId:number, aEditedList:string) : void => {
   const editData = notToDoList.get(aId);
   if(editData===undefined) { return; }
   if(aEditedList!=='undefined') {
-    notToDoList.set(aId, {id:aId, list:aEditedList, routine:editData.routine, customize:editData.customize, stop:'', done:false});
+    notToDoList.set(aId, {id:aId, list:aEditedList, routine:editData.routine, customize:editData.customize, stop:editData.stop, stopTodoDate:editData.stopTodoDate, done:false});
   }
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
 };
@@ -115,10 +116,10 @@ const isTodaysList = (aRoutine:number, aCustomize:number[]) => {
   return false;
 };
 
-const onAddNewList = (aId:number, routine:number, customize:number[], list:string, stopTodo:string) => {
+const onAddNewList = (aId:number, routine:number, customize:number[], list:string, stopTodo:string, stopTodoDate:string) => {
   const notToDoListArray = [...notToDoList];
   let id = (aId===100000) ? notToDoListArray.length : aId;
-  notToDoList.set(id, {id:id, list:list, routine:routine, customize:customize, stop:stopTodo, done:false});
+  notToDoList.set(id, {id:id, list:list, routine:routine, customize:customize, stop:stopTodo, stopTodoDate:stopTodoDate, done:false});
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
   selectListIndex.value = 0;
   if(!isNotToDoData.value) {

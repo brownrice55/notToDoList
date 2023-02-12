@@ -14,7 +14,7 @@
 
   interface Emits {
     (event: 'editList', id:number, list:string): void;
-    (event: 'addNewList', id:number, routine:number, customize:number[], list:string, stopTodo:string): void;
+    (event: 'addNewList', id:number, routine:number, customize:number[], list:string, stopTodo:string, stopTodoDate:string): void;
   }
 
   const props = defineProps<Props>();
@@ -61,8 +61,10 @@
   // 新規入力の頻度のモーダル部分
   const isModal = ref(false);
   const currentId = ref(100000);//100000は新規追加の時
-  const onChangeRoutine = (aId:number, aList:string): void => {
+  const currentRoutines:any = ref([0,[],'nolimit']);
+  const onChangeRoutine = (aId:number, aList:string, aRoutine:number, aCustomize:number[], aStopTodo:string, aStopTodoDate:string): void => {
     currentId.value = aId;
+    currentRoutines.value = [aRoutine, aCustomize, aStopTodo];
     addAndEditList.value = aList;
     if(!inputList.value.length && aId===100000) {
       inputListAlert.value = 'しないことを入力してください。';
@@ -71,18 +73,11 @@
     isModal.value = !isModal.value;
   };
 
-
-  const compareNumber = (a:number, b:number) => {
-    return a - b;
-  };
-
   const notToDoListState = ref();
 
-  const onAddNewList = (currentId:number, routine:number, customize:number[], aInputList:string, stopTodo:string) : void => {
+  const onAddNewList = (currentId:number, routine:number, customize:number[], aInputList:string, stopTodo:string, stopTodoDate:string) : void => {
     isModal.value = !isModal.value;
     if(customize.length) {
-      customize.sort(compareNumber);
-
       if(routine===5) {
         if(customize.length==8 && customize[0]===0 && customize[7]===7) {//毎日の時
           routine = 0;
@@ -101,7 +96,7 @@
         }
       }
     }
-    emit('addNewList', currentId, routine, customize, aInputList, stopTodo);
+    emit('addNewList', currentId, routine, customize, aInputList, stopTodo, stopTodoDate);
     notToDoListState.value = getNotToDoListState(props.notToDoList);
     if(currentId===100000) {
       inputList.value = '';
@@ -123,20 +118,20 @@
         if(cnt<len-1) {
           showCustomizeYoubi += '、';
         }
-        return showCustomizeYoubi;
       }
+      return showCustomizeYoubi;
     }
     else {
       return props.selectListArray[aRoutine];
     }
   };
 
-  const showStopPeriod = (aStopTodo:string) => {
-    if(aStopTodo==='nolimit' || !aStopTodo) {//***!aStopTodoは不要なはずだが値が入っていないことがあるので後で要確認 */
+  const showStopPeriod = (aStopTodo:string, aStopTodoDate:string) => {
+    if(aStopTodo==='nolimit') {
       return '期限:なし';
     }
     else {
-      return '期限:' + aStopTodo + 'まで';
+      return '期限:' + aStopTodoDate + 'まで';
     }
   };
 
@@ -147,6 +142,7 @@
     stop: string;
     done: boolean;
     customize: number[];
+    stopTodoDate: string;
   }
   
   const todayMs = new Date(props.todaysDate.year + '/' + props.todaysDate.month + '/' + props.todaysDate.day).getTime();
@@ -155,7 +151,7 @@
     const newListNow = new Map<number, notToDoListType>();
     const newListStop = new Map<number, notToDoListType>();
     aData.forEach((val:notToDoListType, key:number) => {
-      if(val.stop==='nolimit' || new Date(val.stop).getTime()-todayMs>=0) {
+      if(val.stop==='nolimit' || new Date(val.stopTodoDate).getTime()-todayMs>=0) {
         newListNow.set(key, val);
       }
       else {
@@ -178,14 +174,14 @@
   <div class="settings__inputArea">
     <input type="text" v-model="inputList">
     <div class="settings__inputArea__btnWrap">
-      <button @click="onChangeRoutine(100000, inputList)">追加</button>
+      <button @click="onChangeRoutine(100000, inputList, 0, [], 'nolimit','')">追加</button>
     </div>
   </div>
   <div class="settings___desc">
     <p>例）21時以降はブルーライトを浴びない</p>
   </div>
   <div v-if="isModal" class="overlay">
-    <ModalSelectRoutine :selectListArray="selectListArray" :youbi="youbi" :currentId="currentId" :addAndEditList="addAndEditList" :todaysDate="todaysDate" @addNewList="onAddNewList"></ModalSelectRoutine>
+    <ModalSelectRoutine :selectListArray="selectListArray" :youbi="youbi" :currentId="currentId" :currentRoutines="currentRoutines" :addAndEditList="addAndEditList" :todaysDate="todaysDate" @addNewList="onAddNewList"></ModalSelectRoutine>
   </div>
   <div class="settings__listArea" v-if="props.isNotToDoData">
     <h3>しないことリスト</h3>
@@ -196,8 +192,8 @@
           <div class="settings__listArea__list">
             <div :class="disabledClass">
               <span>{{ showRoutine(data.routine, data.customize) }}</span><br>
-              <span>{{ showStopPeriod(data.stop) }}</span>
-              <i class="fas fa-edit" @click="onChangeRoutine(id, data.list)"></i>
+              <span>{{ showStopPeriod(data.stop, data.stopTodoDate) }}</span>
+              <i class="fas fa-edit" @click="onChangeRoutine(id, data.list, data.routine, data.customize, data.stop, data.stopTodoDate)"></i>
             </div>
             <div :class="disabledClass">
               <input type="text" :value="data.list" @blur="onSaveList(id, data.list)">
@@ -210,12 +206,12 @@
     <template v-if="notToDoListState[1].size">
       <h4>終了済みのリスト</h4>
       <ul>
-        <li  v-for="[id, data] in notToDoListState[1]" :key="data">
+        <li v-for="[id, data] in notToDoListState[1]" :key="data">
           <div class="settings__listArea__list">
             <div :class="disabledClass">
               <span>{{ showRoutine(data.routine, data.customize) }}</span><br>
-              <span>{{ showStopPeriod(data.stop) }}</span>
-              <i class="fas fa-edit" @click="onChangeRoutine(id, data.list)"></i>
+              <span>{{ showStopPeriod(data.stop, data.stopTodoDate) }}</span>
+              <i class="fas fa-edit" @click="onChangeRoutine(id, data.list, data.routine, data.customize, data.stop, data.stopTodoDate)"></i>
             </div>
             <div :class="disabledClass">
               <input type="text" :value="data.list" @blur="onSaveList(id, data.list)">
