@@ -10,6 +10,7 @@
     youbi: string[];
     isNotToDoData: boolean;
     todaysDate: any;
+    todayMs: number;
   }
 
   interface Emits {
@@ -145,13 +146,11 @@
     stopTodoDate: string;
   }
   
-  const todayMs = new Date(props.todaysDate.year + '/' + props.todaysDate.month + '/' + props.todaysDate.day).getTime();
-
   const getNotToDoListState = (aData:any) => {
     const newListNow = new Map<number, notToDoListType>();
     const newListStop = new Map<number, notToDoListType>();
     aData.forEach((val:notToDoListType, key:number) => {
-      if(val.stop==='nolimit' || new Date(val.stopTodoDate).getTime()-todayMs>=0) {
+      if(val.stop==='nolimit' || new Date(val.stopTodoDate).getTime()-props.todayMs>=0) {
         newListNow.set(key, val);
       }
       else {

@@ -3,6 +3,7 @@ import TodaysNotToDoList from './components/TodaysNotToDoList.vue'
 import WeeklyNotToDoList from './components/WeeklyNotToDoList.vue'
 import Total from './components/Total.vue'
 import Settings from './components/Settings.vue'
+import {getIsHoliday} from './components/modules/getHoliday'
 
 import {ref, onMounted} from 'vue';
 
@@ -54,6 +55,7 @@ const showPage = (aPage: string): void => {
 const youbi:string[] = ['日','月','火','水','木','金','土','祝'];
 const today = new Date();
 const todaysDate = { year:today.getFullYear(), month:(today.getMonth()+1), day:today.getDate(), youbi:today.getDay() };
+const todayMs = new Date(todaysDate.year + '/' + todaysDate.month + '/' + todaysDate.day).getTime();
 
 const onCheckDoneList = (id:number, done:boolean) : void => {
   const editData = notToDoList.get(id);
@@ -94,11 +96,21 @@ const onEditList = (aId:number, aEditedList:string) : void => {
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
 };
 
+let isHoliday = getIsHoliday(todaysDate.year, todaysDate.month, todaysDate.day, todaysDate.youbi);
+
+if(!isHoliday && todaysDate.youbi===1) {
+  // 今日が月曜日で祝日で無い場合でも、前日の日曜日が祝日の時は振替休日になる
+  let isYesterdayHoliday = getIsHoliday(past7Days[0].year, past7Days[0].month, past7Days[0].day, past7Days[0].youbi);
+  if(isYesterdayHoliday) {
+    isHoliday = true;
+  }
+}
+
 const isTodaysList = (aRoutine:number, aCustomize:number[]) => {
   if(aRoutine==0) {//毎日の時
     return true;
   }
-  if(aRoutine==1 && todaysDate.youbi!==0 && todaysDate.youbi!==6) {//平日の時***後で変更（祝日含まないので）
+  if(aRoutine==1 && todaysDate.youbi!==0 && todaysDate.youbi!==6 && !isHoliday) {//平日（祝日含まない）の時
     return true;
   }
   if(aRoutine==2 && todaysDate.youbi!==0 && todaysDate.youbi!==6) {//平日（祝日含む）の時
@@ -107,9 +119,16 @@ const isTodaysList = (aRoutine:number, aCustomize:number[]) => {
   if(aRoutine==3 && (todaysDate.youbi===0 || todaysDate.youbi===6)) {//土日の時
     return true;
   }
+  if(aRoutine==4 && (todaysDate.youbi===0 || todaysDate.youbi===6 || isHoliday)) {//土日祝の時
+    return true;
+  }
   if(aRoutine==5) {//その他の時
     const isToday = (aCustomize.some(val => val===todaysDate.youbi)) ? true : false;
     if(isToday) {
+      return true;
+    }
+    const isHolidayInCustomizeArray = aCustomize.some(val=>val===7) ? true : false;
+    if(isHolidayInCustomizeArray && isHoliday) {//祝日の時
       return true;
     }
   }
@@ -147,7 +166,7 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
       <h2 class="todaysList__title">{{ todaysDate.year }}年{{ todaysDate.month }}月{{ todaysDate.day }}日（{{ youbi[todaysDate.youbi] }}）のしないことリスト</h2>
       <ul class="todaysList__list">
         <template v-for="[id, data] in notToDoList" :key="id">
-          <TodaysNotToDoList v-if="isTodaysList(data.routine, data.customize)" :list="data.list" :id="id" :routine="data.routine" :customize="data.customize" :done="data.done" :selectListArray="selectListArray" :youbi="youbi" @checkDoneList="onCheckDoneList" />
+          <TodaysNotToDoList v-if="isTodaysList(data.routine, data.customize) && (data.stop==='nolimit' || data.stopTodoDate && new Date(data.stopTodoDate).getTime()-todayMs>=0)" :list="data.list" :id="id" :routine="data.routine" :customize="data.customize" :done="data.done" :selectListArray="selectListArray" :youbi="youbi" @checkDoneList="onCheckDoneList" />
         </template>
       </ul>
     </section>
@@ -158,7 +177,7 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
       <Total />
     </section>
     <section v-if="showPageKey==='settings'" class="settings">
-      <Settings :notToDoList="notToDoList" :selectListArray="selectListArray" :youbi="youbi" :isNotToDoData="isNotToDoData" :todaysDate="todaysDate" @addNewList="onAddNewList" @editList="onEditList" />
+      <Settings :notToDoList="notToDoList" :selectListArray="selectListArray" :youbi="youbi" :isNotToDoData="isNotToDoData" :todaysDate="todaysDate" :todayMs="todayMs" @addNewList="onAddNewList" @editList="onEditList" />
     </section>
   </main>
 </template>
