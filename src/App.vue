@@ -12,6 +12,11 @@ const activeClassCnt = ref(0);
 const showPageKey = ref('');
 const isNotToDoData = ref(true);
 
+const youbi:string[] = ['日','月','火','水','木','金','土','祝'];
+const today = new Date();
+const todaysDate = { year:today.getFullYear(), month:(today.getMonth()+1), day:today.getDate(), youbi:today.getDay() };
+const todayMs = new Date(todaysDate.year + '/' + todaysDate.month + '/' + todaysDate.day).getTime();
+
 let notToDoList = new Map<number, notToDoListType>();
 const notToDoListJsonStr = localStorage.getItem('notToDoList');
 
@@ -30,7 +35,20 @@ interface notToDoListType {
   stopTodoDate: string;
 }
 
-const weekyListData = JSON.parse(localStorage.getItem('weeklyNotToDoList'));
+let weeklyNotToDoList = new Map<number, weeklyNotToDoListType>();
+const weeklyNotToDoListJsonStr = localStorage.getItem('weeklyNotToDoList');
+
+if(weeklyNotToDoListJsonStr!=='undefined') {
+  const weeklyNotToDoListJson = JSON.parse(weeklyNotToDoListJsonStr);
+  weeklyNotToDoList = new Map<number, weeklyNotToDoListType>(weeklyNotToDoListJson);
+}
+
+interface weeklyNotToDoListType {
+  id: number;
+  data: any;
+}
+
+
 const totalData = JSON.parse(localStorage.getItem('totalNotToDoList'));
 
 onMounted(
@@ -52,27 +70,25 @@ const showPage = (aPage: string): void => {
 };
 
 // TodaysNotToDoList
-const youbi:string[] = ['日','月','火','水','木','金','土','祝'];
-const today = new Date();
-const todaysDate = { year:today.getFullYear(), month:(today.getMonth()+1), day:today.getDate(), youbi:today.getDay() };
-const todayMs = new Date(todaysDate.year + '/' + todaysDate.month + '/' + todaysDate.day).getTime();
 
 const onCheckDoneList = (id:number, done:boolean) : void => {
   const editData = notToDoList.get(id);
   if(editData) {
     notToDoList.set(id, {id:id, list:editData.list, routine:editData.routine, customize:editData.customize, stop:editData.stop, stopTodoDate:editData.stopTodoDate, done:done});
+    weeklyNotToDoList.set(todayMs, {id:todayMs, data:[...notToDoList]});
   }
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
+  localStorage.setItem('weeklyNotToDoList', JSON.stringify([...weeklyNotToDoList]));
 }
 
 // WeeklyNotToDoList
 const yesterday = new Date(today.setDate(today.getDate()-1));
 const twodaysbefore = new Date(yesterday.setDate(yesterday.getDate()-1));
-const threedaysbefore = new Date(yesterday.setDate(yesterday.getDate()-1));
-const fourdaysbefore = new Date(yesterday.setDate(yesterday.getDate()-1));
-const fivedaysbefore = new Date(yesterday.setDate(yesterday.getDate()-1));
-const sixdaysbefore = new Date(yesterday.setDate(yesterday.getDate()-1));
-const sevendaysbefore = new Date(yesterday.setDate(yesterday.getDate()-1));
+const threedaysbefore = new Date(twodaysbefore.setDate(twodaysbefore.getDate()-1));
+const fourdaysbefore = new Date(threedaysbefore.setDate(threedaysbefore.getDate()-1));
+const fivedaysbefore = new Date(fourdaysbefore.setDate(fourdaysbefore.getDate()-1));
+const sixdaysbefore = new Date(fivedaysbefore.setDate(fivedaysbefore.getDate()-1));
+const sevendaysbefore = new Date(sixdaysbefore.setDate(sixdaysbefore.getDate()-1));
 const past7Days:any[] = Array(7).fill(Array(4).fill(''));
 past7Days[0] = { year:yesterday.getFullYear(), month:(yesterday.getMonth()+1), day:yesterday.getDate(), youbi:youbi[yesterday.getDay()] };
 past7Days[1] = { year:twodaysbefore.getFullYear(), month:(twodaysbefore.getMonth()+1), day:twodaysbefore.getDate(), youbi:youbi[twodaysbefore.getDay()] };
@@ -82,18 +98,20 @@ past7Days[4] = { year:fivedaysbefore.getFullYear(), month:(fivedaysbefore.getMon
 past7Days[5] = { year:sixdaysbefore.getFullYear(), month:(sixdaysbefore.getMonth()+1), day:sixdaysbefore.getDate(), youbi:youbi[sixdaysbefore.getDay()] };
 past7Days[6] = { year:sevendaysbefore.getFullYear(), month:(sevendaysbefore.getMonth()+1), day:sevendaysbefore.getDate(), youbi:youbi[sevendaysbefore.getDay()] };
 
+
 // Settings
 const selectListIndex = ref(0);
 const selectListArray: string[] = ['毎日', '平日だけ（祝日含まない）', '平日だけ（祝日含む）', '土日だけ', '土日祝だけ', 'その他'];
-
 
 const onEditList = (aId:number, aEditedList:string) : void => {
   const editData = notToDoList.get(aId);
   if(editData===undefined) { return; }
   if(aEditedList!=='undefined') {
-    notToDoList.set(aId, {id:aId, list:aEditedList, routine:editData.routine, customize:editData.customize, stop:editData.stop, stopTodoDate:editData.stopTodoDate, done:false});
+    notToDoList.set(aId, {id:aId, list:aEditedList, routine:editData.routine, customize:editData.customize, stop:editData.stop, stopTodoDate:editData.stopTodoDate, done:editData.done});
+    weeklyNotToDoList.set(todayMs, {id:todayMs, data:[...notToDoList]});
   }
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
+  localStorage.setItem('weeklyNotToDoList', JSON.stringify([...weeklyNotToDoList]));
 };
 
 let isHoliday = getIsHoliday(todaysDate.year, todaysDate.month, todaysDate.day, todaysDate.youbi);
@@ -139,7 +157,9 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
   const notToDoListArray = [...notToDoList];
   let id = (aId===100000) ? notToDoListArray.length : aId;
   notToDoList.set(id, {id:id, list:list, routine:routine, customize:customize, stop:stopTodo, stopTodoDate:stopTodoDate, done:false});
+  weeklyNotToDoList.set(todayMs, {id:todayMs, data:[...notToDoList]});
   localStorage.setItem('notToDoList', JSON.stringify([...notToDoList]));
+  localStorage.setItem('weeklyNotToDoList', JSON.stringify([...weeklyNotToDoList]));
   selectListIndex.value = 0;
   if(!isNotToDoData.value) {
     isNotToDoData.value = true;
@@ -154,7 +174,7 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
     <nav class="header__nav" :class="activeClass">
       <ul>
         <li @click="showPage('todaysList')" v-if="notToDoList">今日のリスト</li>
-        <li @click="showPage('weeklyList')" v-if="weekyListData">今週のリスト</li>
+        <li @click="showPage('weeklyList')" v-if="weeklyNotToDoList">今週のリスト</li><!--出し分けの判定は後で***今日の分を取り除かないといけないので-->
         <li @click="showPage('total')" v-if="totalData">集計結果</li>
         <li @click="showPage('settings')">設定</li>
       </ul>
@@ -171,7 +191,7 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
       </ul>
     </section>
     <section v-if="showPageKey==='weeklyList'" class="weeklyList">
-      <WeeklyNotToDoList />
+      <WeeklyNotToDoList :weeklyNotToDoList="weeklyNotToDoList" :past7Days="past7Days" />
     </section>
     <section v-if="showPageKey==='total'" class="total">
       <Total />

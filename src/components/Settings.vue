@@ -158,7 +158,7 @@
       }
     });
     return [newListNow, newListStop];
-  }
+  };
 
   notToDoListState.value = getNotToDoListState(props.notToDoList);
 
