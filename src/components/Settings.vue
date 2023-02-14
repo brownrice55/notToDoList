@@ -162,6 +162,10 @@
 
   notTodoListState.value = getNotTodoListState(props.notTodoList);
 
+  const onCloseModal = (aIsModal:boolean) => {
+    isModal.value = aIsModal;
+  }
+
 </script>
 
 <template>
@@ -180,7 +184,7 @@
     <p>例）21時以降はブルーライトを浴びない</p>
   </div>
   <div v-if="isModal" class="overlay">
-    <ModalSelectRoutine :selectListArray="selectListArray" :youbi="youbi" :currentId="currentId" :currentRoutines="currentRoutines" :addAndEditList="addAndEditList" :todaysDate="todaysDate" @addNewList="onAddNewList"></ModalSelectRoutine>
+    <ModalSelectRoutine :selectListArray="selectListArray" :youbi="youbi" :currentId="currentId" :currentRoutines="currentRoutines" :addAndEditList="addAndEditList" :todaysDate="todaysDate" :isModal="isModal" @addNewList="onAddNewList" @closeModal="onCloseModal"></ModalSelectRoutine>
   </div>
   <div class="settings__listArea" v-if="props.isNotTodoData">
     <h3>しないことリスト</h3>
@@ -316,7 +320,7 @@
   height: 100%;
   background: rgba(0, 0, 0, 0.7);
   text-align: center;
-  z-index: 10;
+  z-index: 20;
   color: #fff;
 }
 </style>

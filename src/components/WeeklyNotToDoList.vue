@@ -6,9 +6,11 @@
     past7Days: any;
     youbi: string[];
     past7DaysMs: number[];
+    todayMs: number;
   }
 
   const props = defineProps<Props>();
+
 </script>
 
 <template>
@@ -22,7 +24,7 @@
             <input type="checkbox" :id="'check' + id2 + '_' + data2.id" :checked="data2.done">
             <label :for="'check' + id2 + '_' + data2.id" :class="data2.done?'done':''">{{ data2.list }}</label>
             </template>
-            <template v-else-if="data2.id==0">
+            <template v-else-if="data2.id==0 && id!==todayMs">
               <li>この日のアプリの使用はありません。</li>
             </template>
           </li>

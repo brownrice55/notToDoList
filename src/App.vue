@@ -54,9 +54,9 @@ onMounted(
   (): void => {
     showPageKey.value = (notTodoListJsonStr) ? 'todaysList': 'settings';
     isNotTodoData.value = (notTodoListJsonStr) ? true: false;
+    weeklyNotTodoList = getWeeklyNotTodoList();
     if(notTodoList.size) {
-      //notToDolistの絞り込み
-
+      //notToDolistの絞り込み　今日のリストのみtodaysNotTodoListに入れてweeklyにも入れる
       let todaysNotTodoList = getTodaysNotTodoList();
       weeklyNotTodoList.set(todayMs, {id:todayMs, data:[...todaysNotTodoList]});
       localStorage.setItem('weeklyNotTodoList', JSON.stringify([...weeklyNotTodoList]));
@@ -71,6 +71,16 @@ const getTodaysNotTodoList = () => {
     if(isToday && (val.stop==='nolimit' || new Date(val.stopTodoDate).getTime()-todayMs>=0)) {
       newList.set(key, val);
     }
+  });
+  return newList;
+};
+
+const getWeeklyNotTodoList = () => {
+  const newList = new Map<number, weeklyNotTodoListType>();
+    weeklyNotTodoList.forEach((val:weeklyNotTodoListType, key:number) => {
+      if(val.id<=todayMs && val.id>=past7DaysMs[6]) {
+        newList.set(key, val);
+      }
   });
   return newList;
 };
@@ -187,7 +197,7 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
     <nav class="header__nav" :class="activeClass">
       <ul>
         <li @click="showPage('todaysList')" v-if="notTodoList">今日のリスト</li>
-        <li @click="showPage('weeklyList')" v-if="weeklyNotTodoList">今週のリスト</li><!--出し分けの判定は後で***今日の分を取り除かないといけないので-->
+        <li @click="showPage('weeklyList')" v-if="weeklyNotTodoList.size>1">今週のリスト</li>
         <li @click="showPage('total')" v-if="totalData">集計結果</li>
         <li @click="showPage('settings')">設定</li>
       </ul>
@@ -204,7 +214,7 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
       </ul>
     </section>
     <section v-if="showPageKey==='weeklyList'" class="weeklyList">
-      <WeeklyNotTodoList :weeklyNotTodoList="weeklyNotTodoList" :past7Days="past7Days" :youbi="youbi" :past7DaysMs="past7DaysMs" />
+      <WeeklyNotTodoList :weeklyNotTodoList="weeklyNotTodoList" :past7Days="past7Days" :youbi="youbi" :past7DaysMs="past7DaysMs" :todayMs="todayMs" />
     </section>
     <section v-if="showPageKey==='total'" class="total">
       <Total />

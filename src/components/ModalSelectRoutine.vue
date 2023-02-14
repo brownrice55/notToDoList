@@ -8,10 +8,12 @@
     youbi: string[];
     todaysDate: any;
     currentRoutines: any;
+    isModal: boolean;
   }
 
   interface Emits {
     (event: 'addNewList', currentId:number, routine:number, customize:number[], addAndEditList:string, stopTodo:string, stopTodoDate:string): void;
+    (event: 'closeModal', isModal:boolean): void;
   }
 
   const props = defineProps<Props>();
@@ -84,6 +86,10 @@
     stopTodoDate.value = targetElm.value;
   };
 
+  const onCloseModal = (event:Event) => {
+    emit('closeModal', false);
+  };
+
 </script>
 
 <template>
@@ -120,6 +126,7 @@
       </template>
     </div>
     <button @click="onAddNewList">保存する</button>
+    <span class="modal__closeBtn" @click="onCloseModal">✖️</span>
   </div>
 </template>
 
@@ -181,10 +188,17 @@ $colorFont: #333;
 }
 
 .modal {
-  background:rgba($color: #fff, $alpha: 0.5);
+  background:rgba($color: #fff, $alpha: 0.8);
   padding: 20px;
   margin: 20px;
   color: #333;
+  position: relative;
+  &__closeBtn{
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    cursor: pointer;
+  }
   &__inputArea {
     padding: 20px 0;
     text-align: left;
