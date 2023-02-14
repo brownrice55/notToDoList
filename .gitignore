@@ -33,7 +33,6 @@ package.json
 .prettierrc.json
 tsconfig.config.json
 tsconfig.json
-vite.config.ts
 .vscode/extensions.json
 src/assets/_destyle.css
 src/main.ts

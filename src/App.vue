@@ -226,10 +226,6 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
 </template>
 
 <style lang="scss" scoped>
-@use 'sass:math';
-@function rem($px) {
-  @return math.div($px, 16px) * 1rem;
-}
 
 body {
   font-size: 1rem;

@@ -39,60 +39,7 @@
   width: 100%;
   &__container {
     width: 100%;
-    li {
-      margin: 0 0 14px 14px;
-    }
-    input {
-      position: absolute;
-      height: 0;
-      width: 0;
-      overflow: hidden;
-    }
-    label {
-      position: relative;
-      padding: 0 0 0 20px;
-      cursor: pointer;
-      span {
-        font-size: 80%;
-        background: #eee;
-      }
-      &.done {
-        text-decoration: line-through;
-      }
-      &:before {
-        content: '';
-        display: block;
-        position: absolute;
-        left: 0;
-        width: 16px;
-        height: 16px;
-        top: 1px;
-        background: #ccc;
-        transition: all ease-in 0.1s;
-      }
-      &:after {
-        content: '';
-        position: absolute;
-        top: 9px;
-        left: 5px;
-        transform: rotate(-45deg) scaleX(0);
-        transform-origin: left;
-        width: 11px;
-        height: 5px;
-        border-left: 3px solid #fff;
-        border-bottom: 2px solid #fff;
-        transition: transform 0.1s ease-in;
-      }
-    }
-    input:checked + label {
-      &:before {
-        background-color: #333;
-        border-color: #333;
-      }
-      &:after {
-        transform: rotate(-45deg) scaleX(1);
-      }
-    }
+    @include inputCheckList;
   }
 }
 
