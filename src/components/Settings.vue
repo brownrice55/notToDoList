@@ -5,10 +5,10 @@
   const disabledClass = ref('disabled');
 
   interface Props {
-    notToDoList: any;
+    notTodoList: any;
     selectListArray: string[];
     youbi: string[];
-    isNotToDoData: boolean;
+    isNotTodoData: boolean;
     todaysDate: any;
     todayMs: number;
   }
@@ -74,7 +74,7 @@
     isModal.value = !isModal.value;
   };
 
-  const notToDoListState = ref();
+  const notTodoListState = ref();
 
   const onAddNewList = (currentId:number, routine:number, customize:number[], aInputList:string, stopTodo:string, stopTodoDate:string) : void => {
     isModal.value = !isModal.value;
@@ -98,7 +98,7 @@
       }
     }
     emit('addNewList', currentId, routine, customize, aInputList, stopTodo, stopTodoDate);
-    notToDoListState.value = getNotToDoListState(props.notToDoList);
+    notTodoListState.value = getNotTodoListState(props.notTodoList);
     if(currentId===100000) {
       inputList.value = '';
     }
@@ -136,7 +136,7 @@
     }
   };
 
-  interface notToDoListType {
+  interface notTodoListType {
     id: number;
     list: string;
     routine: number;
@@ -146,10 +146,10 @@
     stopTodoDate: string;
   }
   
-  const getNotToDoListState = (aData:any) => {
-    const newListNow = new Map<number, notToDoListType>();
-    const newListStop = new Map<number, notToDoListType>();
-    aData.forEach((val:notToDoListType, key:number) => {
+  const getNotTodoListState = (aData:any) => {
+    const newListNow = new Map<number, notTodoListType>();
+    const newListStop = new Map<number, notTodoListType>();
+    aData.forEach((val:notTodoListType, key:number) => {
       if(val.stop==='nolimit' || new Date(val.stopTodoDate).getTime()-props.todayMs>=0) {
         newListNow.set(key, val);
       }
@@ -160,7 +160,7 @@
     return [newListNow, newListStop];
   };
 
-  notToDoListState.value = getNotToDoListState(props.notToDoList);
+  notTodoListState.value = getNotTodoListState(props.notTodoList);
 
 </script>
 
@@ -182,12 +182,12 @@
   <div v-if="isModal" class="overlay">
     <ModalSelectRoutine :selectListArray="selectListArray" :youbi="youbi" :currentId="currentId" :currentRoutines="currentRoutines" :addAndEditList="addAndEditList" :todaysDate="todaysDate" @addNewList="onAddNewList"></ModalSelectRoutine>
   </div>
-  <div class="settings__listArea" v-if="props.isNotToDoData">
+  <div class="settings__listArea" v-if="props.isNotTodoData">
     <h3>しないことリスト</h3>
-    <template v-if="notToDoListState[0].size">
+    <template v-if="notTodoListState[0].size">
       <h4>現在進行中のリスト</h4>
       <ul>
-        <li v-for="[id, data] in notToDoListState[0]" :key="data">
+        <li v-for="[id, data] in notTodoListState[0]" :key="data">
           <div class="settings__listArea__list">
             <div :class="disabledClass">
               <span>{{ showRoutine(data.routine, data.customize) }}</span><br>
@@ -202,10 +202,10 @@
         </li>
       </ul>
     </template>
-    <template v-if="notToDoListState[1].size">
+    <template v-if="notTodoListState[1].size">
       <h4>終了済みのリスト</h4>
       <ul>
-        <li v-for="[id, data] in notToDoListState[1]" :key="data">
+        <li v-for="[id, data] in notTodoListState[1]" :key="data">
           <div class="settings__listArea__list">
             <div :class="disabledClass">
               <span>{{ showRoutine(data.routine, data.customize) }}</span><br>

@@ -41,6 +41,9 @@
     if(checkYoubiIndex.value.length>0) {
       checkYoubiIndex.value.sort(compareNumber);
     }
+    if(stopTodo.value==='nolimit') {
+      stopTodoDate.value = '';
+    }
     if(selectRoutineIndex.value===5) {
       emit('addNewList', props.currentId, selectRoutineIndex.value, checkYoubiIndex.value, props.addAndEditList, stopTodo.value, stopTodoDate.value);
     }
@@ -108,7 +111,6 @@
           <label for="radio_end1">終了日を指定しない</label>
         </li>
         <li>
-          <!-- <input id="radio_end2" type="radio" :value="stopTodoDate" @click="getStopTodoDate"> -->
           <input id="radio_end2" type="radio" value="limited" v-model="stopTodo">
           <label for="radio_end2">終了日を指定する</label>
         </li>
