@@ -18,7 +18,7 @@
     padding: 0 0 0 20px;
     cursor: pointer;
     span {
-      font-size: 80%;
+      font-size: rem(12px);
       background: #eee;
     }
     &.done {

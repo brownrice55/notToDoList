@@ -57,18 +57,23 @@ onMounted(
     weeklyNotTodoList = getWeeklyNotTodoList();
     if(notTodoList.size) {
       //notToDolistの絞り込み　今日のリストのみtodaysNotTodoListに入れてweeklyにも入れる
-      let todaysNotTodoList = getTodaysNotTodoList();
+      const isTodayFirst = weeklyNotTodoList.get(todayMs) ? false : true;
+      let todaysNotTodoList = getTodaysNotTodoList(isTodayFirst);
       weeklyNotTodoList.set(todayMs, {id:todayMs, data:[...todaysNotTodoList]});
       localStorage.setItem('weeklyNotTodoList', JSON.stringify([...weeklyNotTodoList]));
     }
   }
 );
 
-const getTodaysNotTodoList = () => {
+const getTodaysNotTodoList = (aIsTodayFirst:boolean=false) => {
   const newList = new Map<number, notTodoListType>();
     notTodoList.forEach((val:notTodoListType, key:number) => {
     let isToday = isTodaysList(val.routine, val.customize);
     if(isToday && (val.stop==='nolimit' || new Date(val.stopTodoDate).getTime()-todayMs>=0)) {
+      // 日付が変わった時に一度だけ実行
+      if(aIsTodayFirst) {
+        val.done = false;
+      }
       newList.set(key, val);
     }
   });
@@ -274,7 +279,7 @@ body {
       left: 50%;
       transform: translate(-50%,-50%);
       display: block;
-      font-size: 200%;
+      font-size: rem(30px);
       line-height: 3;
       color: #fff;
       text-align: center;
