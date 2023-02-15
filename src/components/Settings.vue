@@ -62,9 +62,11 @@
   // 新規入力の頻度のモーダル部分
   const isModal = ref(false);
   const currentId = ref(100000);//100000は新規追加の時
+  const currentState = ref(true);//終了済み以外はtrue
   const currentRoutines:any = ref([0,[],'nolimit']);
-  const onChangeRoutine = (aId:number, aList:string, aRoutine:number, aCustomize:number[], aStopTodo:string, aStopTodoDate:string): void => {
+  const onChangeRoutine = (aId:number, aList:string, aRoutine:number, aCustomize:number[], aStopTodo:string, aStopTodoDate:string, aState:boolean): void => {
     currentId.value = aId;
+    currentState.value = aState;
     currentRoutines.value = [aRoutine, aCustomize, aStopTodo];
     addAndEditList.value = aList;
     if(!inputList.value.length && aId===100000) {
@@ -177,14 +179,14 @@
   <div class="settings__inputArea">
     <input type="text" v-model="inputList">
     <div class="settings__inputArea__btnWrap">
-      <button @click="onChangeRoutine(100000, inputList, 0, [], 'nolimit','')">追加</button>
+      <button @click="onChangeRoutine(100000, inputList, 0, [], 'nolimit','',true)">追加</button>
     </div>
   </div>
   <div class="settings___desc">
     <p>例）21時以降はブルーライトを浴びない</p>
   </div>
   <div v-if="isModal" class="overlay">
-    <ModalSelectRoutine :selectListArray="selectListArray" :youbi="youbi" :currentId="currentId" :currentRoutines="currentRoutines" :addAndEditList="addAndEditList" :todaysDate="todaysDate" :isModal="isModal" @addNewList="onAddNewList" @closeModal="onCloseModal"></ModalSelectRoutine>
+    <ModalSelectRoutine :selectListArray="selectListArray" :youbi="youbi" :currentId="currentId" :currentRoutines="currentRoutines" :currentState="currentState" :addAndEditList="addAndEditList" :todaysDate="todaysDate" :isModal="isModal" @addNewList="onAddNewList" @closeModal="onCloseModal"></ModalSelectRoutine>
   </div>
   <div class="settings__listArea" v-if="props.isNotTodoData">
     <h3>しないことリスト</h3>
@@ -196,7 +198,7 @@
             <div :class="disabledClass">
               <span>{{ showRoutine(data.routine, data.customize) }}</span><br>
               <span>{{ showStopPeriod(data.stop, data.stopTodoDate) }}</span>
-              <i class="fas fa-edit" @click="onChangeRoutine(id, data.list, data.routine, data.customize, data.stop, data.stopTodoDate)"></i>
+              <i class="fas fa-edit" @click="onChangeRoutine(id, data.list, data.routine, data.customize, data.stop, data.stopTodoDate, true)"></i>
             </div>
             <div :class="disabledClass">
               <input type="text" :value="data.list" @blur="onSaveList(id, data.list)">
@@ -214,7 +216,7 @@
             <div :class="disabledClass">
               <span>{{ showRoutine(data.routine, data.customize) }}</span><br>
               <span>{{ showStopPeriod(data.stop, data.stopTodoDate) }}</span>
-              <i class="fas fa-edit" @click="onChangeRoutine(id, data.list, data.routine, data.customize, data.stop, data.stopTodoDate)"></i>
+              <i class="fas fa-edit" @click="onChangeRoutine(id, data.list, data.routine, data.customize, data.stop, data.stopTodoDate, false)"></i>
             </div>
             <div :class="disabledClass">
               <input type="text" :value="data.list" @blur="onSaveList(id, data.list)">

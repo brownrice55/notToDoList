@@ -9,6 +9,7 @@
     todaysDate: any;
     currentRoutines: any;
     isModal: boolean;
+    currentState: boolean;
   }
 
   interface Emits {
@@ -32,6 +33,9 @@
     (): void => {
       isOther.value = (selectRoutineIndex.value===5) ? true : false;
       isStopTodo.value = (stopTodo.value==='nolimit') ? false : true;
+      if(!props.currentState) {
+        stopTodoDate.value = '';
+      }
     }
   );
 
