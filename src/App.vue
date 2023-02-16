@@ -48,8 +48,6 @@ interface weeklyNotTodoListType {
   data: any;
 }
 
-const totalData = JSON.parse(localStorage.getItem('totalNotTodoList'));
-
 onMounted(
   (): void => {
     showPageKey.value = (notTodoListJsonStr) ? 'todaysList': 'settings';
@@ -124,6 +122,26 @@ for(let cnt=0;cnt<7;++cnt) {
   past7Days[cnt] = {year:past7DaysSetDate[cnt].getFullYear(), month:(past7DaysSetDate[cnt].getMonth()+1), day:past7DaysSetDate[cnt].getDate(), youbi:past7DaysSetDate[cnt].getDay()};
   past7DaysMs[cnt] = todayMs-(86400000*(cnt+1));
 }
+
+const onCheckDoneListWeekly = (weeklyMs:number , id:number, done:boolean) : void => {
+  const editDataWeekly = weeklyNotTodoList.get(weeklyMs);
+  
+  const editList = new Map<number, notTodoListType>();
+  if(editDataWeekly) {
+    editDataWeekly.data.forEach((val:any, key:number) => {
+      let editData = val[1];
+      if(editData.id===id) {
+        editList.set(editData.id, {id:editData.id, list:editData.list, routine:editData.routine, customize:editData.customize, stop:editData.stop, stopTodoDate:editData.stopTodoDate, done:done});
+      }
+      else {
+        editList.set(editData.id, {id:editData.id, list:editData.list, routine:editData.routine, customize:editData.customize, stop:editData.stop, stopTodoDate:editData.stopTodoDate, done:editData.done});
+      }
+    });
+    weeklyNotTodoList.set(weeklyMs, {id:weeklyMs, data:[...editList]});
+    localStorage.setItem('weeklyNotTodoList', JSON.stringify([...weeklyNotTodoList]));
+  }
+}
+
 
 // Settings
 const selectListIndex = ref(0);
@@ -203,7 +221,7 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
       <ul>
         <li @click="showPage('todaysList')" v-if="notTodoList">今日のリスト</li>
         <li @click="showPage('weeklyList')" v-if="weeklyNotTodoList.size>1">今週のリスト</li>
-        <li @click="showPage('total')" v-if="totalData">集計結果</li>
+        <li @click="showPage('total')" v-if="weeklyNotTodoList.size>1">集計結果</li>
         <li @click="showPage('settings')">設定</li>
       </ul>
     </nav>
@@ -219,7 +237,7 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
       </ul>
     </section>
     <section v-if="showPageKey==='weeklyList'" class="weeklyList">
-      <WeeklyNotTodoList :weeklyNotTodoList="weeklyNotTodoList" :past7Days="past7Days" :youbi="youbi" :past7DaysMs="past7DaysMs" :todayMs="todayMs" />
+      <WeeklyNotTodoList :weeklyNotTodoList="weeklyNotTodoList" :past7Days="past7Days" :youbi="youbi" :past7DaysMs="past7DaysMs" :todayMs="todayMs" @checkDoneListWeekly="onCheckDoneListWeekly" />
     </section>
     <section v-if="showPageKey==='total'" class="total">
       <Total />
