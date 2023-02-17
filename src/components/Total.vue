@@ -106,7 +106,7 @@
 </script>
 
 <template>
-  <dl>
+  <dl class="total__list">
     <template v-for="(data,index) in totalData" :key="data">
       <template v-if="data">
         <dt>
@@ -123,4 +123,13 @@
 </template>
 
 <style lang="scss" scoped>
+.total__list{
+  dt {
+    font-weight: normal;
+    padding: 10px 10px 0;
+  }
+  dd {
+    padding: 0 10px 10px;
+  }
+}
 </style>

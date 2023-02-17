@@ -8,6 +8,7 @@ import {getIsHoliday} from './components/modules/getHoliday'
 import {ref, onMounted} from 'vue';
 
 const activeClass = ref('');
+const menuText = ref('menu');
 const activeClassCnt = ref(0);
 const showPageKey = ref('');
 const isNotTodoData = ref(true);
@@ -90,17 +91,18 @@ const getWeeklyNotTodoList = () => {
 
 const onOpenMenu = (): void => {
   activeClass.value = (activeClassCnt.value%2===0) ? 'active' : '';
+  menuText.value = (activeClassCnt.value%2===0) ? 'close' : 'menu';
   activeClassCnt.value++;
 };
 
 const showPage = (aPage: string): void => {
   activeClass.value = (activeClassCnt.value%2===0) ? 'active' : '';
+  menuText.value = (activeClassCnt.value%2===0) ? 'close' : 'menu';
   activeClassCnt.value++;
   showPageKey.value = aPage;
 };
 
 // TodaysNotTodoList
-
 const onCheckDoneList = (id:number, done:boolean) : void => {
   const editData = notTodoList.get(id);
   if(editData) {
@@ -215,7 +217,7 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
 
 <template>
   <header class="header" v-if="isNotTodoData">
-    <button class="header__openBtn" @click="onOpenMenu" :class="activeClass">menu</button>
+    <button class="header__openBtn" @click="onOpenMenu" :class="activeClass">{{ menuText }}</button>
     <nav class="header__nav" :class="activeClass">
       <ul>
         <li @click="showPage('todaysList')" v-if="notTodoList">今日のリスト</li>
