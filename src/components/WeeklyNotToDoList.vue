@@ -61,8 +61,8 @@
           <ul>
             <li v-for="[id2, data2] in data.data" :key="data2">
               <template v-if="isPastData(id, index)">
-                <input type="checkbox" :id="'check' + id2 + '_' + data2.id" :checked="data2.done" @change="checkDoneTodoWeekly(id ,data2.id)">
-                <label :for="'check' + id2 + '_' + data2.id" :class="data2.done?'done':''">{{ data2.list }}</label>
+                <input type="checkbox" :id="'check' + id + '_' + data2.id" :checked="data2.done" @change="checkDoneTodoWeekly(id ,data2.id)">
+                <label :for="'check' + id + '_' + data2.id" :class="data2.done?'done':''">{{ data2.list }}</label>
               </template>
             </li>
           </ul>

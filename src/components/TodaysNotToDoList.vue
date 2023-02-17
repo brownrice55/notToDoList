@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import {ref, onMounted} from 'vue';
+  import {getShowRoutine} from './modules/getShowRoutine'
 
   interface Props {
     id: number;
@@ -29,23 +30,11 @@
     emit('checkDoneList', props.id, localDone.value);
   };
 
-  const showSelectListData = ref('');
-  let showCustomizeYoubi:string = '';
+  const showRoutineData = ref('');
 
   onMounted(
     (): void => {
-      if(props.routine===5) {
-        for(let cnt=0,len=props.customize.length;cnt<len;++cnt) {
-          showCustomizeYoubi += props.youbi[props.customize[cnt]] + '曜日';
-          if(cnt<len-1) {
-            showCustomizeYoubi += '、';
-          }
-          showSelectListData.value = showCustomizeYoubi;
-        }
-      }
-      else {
-        showSelectListData.value = props.selectListArray[props.routine];
-      }
+      showRoutineData.value = getShowRoutine(props.routine, props.customize, props.selectListArray, props.youbi);
     }
   );
 
@@ -54,7 +43,7 @@
 <template>
   <li>
     <input type="checkbox" :id="'check' + props.id" :checked="localDone" @change="checkDoneTodo">
-    <label :for="'check' + props.id" :class="localDone?'done':''">{{ list }}<span>{{ showSelectListData }}</span></label>
+    <label :for="'check' + props.id" :class="localDone?'done':''">{{ list }}<span>{{ showRoutineData }}</span></label>
   </li>
 </template>
 

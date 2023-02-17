@@ -125,7 +125,6 @@ for(let cnt=0;cnt<7;++cnt) {
 
 const onCheckDoneListWeekly = (weeklyMs:number , id:number, done:boolean) : void => {
   const editDataWeekly = weeklyNotTodoList.get(weeklyMs);
-  
   const editList = new Map<number, notTodoListType>();
   if(editDataWeekly) {
     editDataWeekly.data.forEach((val:any, key:number) => {
@@ -240,7 +239,8 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
       <WeeklyNotTodoList :weeklyNotTodoList="weeklyNotTodoList" :past7Days="past7Days" :youbi="youbi" :past7DaysMs="past7DaysMs" :todayMs="todayMs" @checkDoneListWeekly="onCheckDoneListWeekly" />
     </section>
     <section v-if="showPageKey==='total'" class="total">
-      <Total />
+      <h2 class="total__title">{{ past7Days[6].year }}年{{ past7Days[6].month }}月{{ past7Days[6].day }}日（{{ youbi[past7Days[6].youbi] }}）〜今日までの8日間の集計結果</h2>
+      <Total :weeklyNotTodoList="weeklyNotTodoList" :ListSize="notTodoList.size" :todaysDate="todaysDate" :past7Days="past7Days" :isHoliday="isHoliday" :selectListArray="selectListArray" :youbi="youbi" />
     </section>
     <section v-if="showPageKey==='settings'" class="settings">
       <Settings :notTodoList="notTodoList" :selectListArray="selectListArray" :youbi="youbi" :isNotTodoData="isNotTodoData" :todaysDate="todaysDate" :todayMs="todayMs" @addNewList="onAddNewList" @editList="onEditList" />

@@ -32,10 +32,12 @@ const getWeekNumAndIsHoliday = (aMonth:number, aDay:number, aYoubi:number) => {
 const getIsHoliday = (aYear:number, aMonth:number, aDay:number, aYoubi:number) => {
   if(aMonth===3 || aMonth===9) {
     if(aMonth===3) {//春分の日
-      return Math.floor(20.8431+0.242194*(aYear-1980)-Math.floor((aYear-1980)/4));
+      let result = (Math.floor(20.8431+0.242194*(aYear-1980)-Math.floor((aYear-1980)/4))===aDay) ? true : false;
+      return result;
     }
     if(aMonth===9) {//秋分の日
-      return Math.floor(23.2488+0.242194*(aYear-1980)-Math.floor((aYear-1980)/4));
+      let result = (Math.floor(23.2488+0.242194*(aYear-1980)-Math.floor((aYear-1980)/4))===aDay) ? true : false;
+      return result;
     }
   }
   else {
