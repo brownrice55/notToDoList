@@ -219,8 +219,10 @@
               <i class="fas fa-edit" @click="onChangeRoutine(id, data.list, data.routine, data.customize, data.stop, data.stopTodoDate, false)"></i>
             </div>
             <div :class="disabledClass">
-              <input type="text" :value="data.list" @blur="onSaveList(id, data.list)">
-              <i class="fas fa-edit" @click="onEditList"></i>
+              <input type="text" :value="data.list">
+            </div>
+            <div>
+              <button>このリストを削除する</button>
             </div>
           </div>
         </li>

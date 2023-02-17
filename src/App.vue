@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import TodaysNotTodoList from './components/TodaysNotTodoList.vue'
-import WeeklyNotTodoList from './components/WeeklyNotTodoList.vue'
-import Total from './components/Total.vue'
-import Settings from './components/Settings.vue'
-import {getIsHoliday} from './components/modules/getHoliday'
+import TodaysNotTodoList from './components/TodaysNotTodoList.vue';
+import WeeklyNotTodoList from './components/WeeklyNotTodoList.vue';
+import Total from './components/Total.vue';
+import Settings from './components/Settings.vue';
+import {getIsHoliday} from './components/modules/getHoliday';
 
 import {ref, onMounted} from 'vue';
 
@@ -57,20 +57,22 @@ onMounted(
     if(notTodoList.size) {
       //notToDolistの絞り込み　今日のリストのみtodaysNotTodoListに入れてweeklyにも入れる
       const isTodayFirst = weeklyNotTodoList.get(todayMs) ? false : true;
-      let todaysNotTodoList = getTodaysNotTodoList(isTodayFirst);
+      let todaysNotTodoList = getTodaysNotTodoList(isTodayFirst, todayMs, todaysDate.youbi);
       weeklyNotTodoList.set(todayMs, {id:todayMs, data:[...todaysNotTodoList]});
       localStorage.setItem('weeklyNotTodoList', JSON.stringify([...weeklyNotTodoList]));
+      if(isTodayFirst) {// 日付が変わった時に一度だけ実行
+        getWeeklyListTemplateForUnusedDay();
+      }
     }
   }
 );
 
-const getTodaysNotTodoList = (aIsTodayFirst:boolean=false) => {
+const getTodaysNotTodoList = (aIsTodayFirst:boolean, aMs:number, aYoubi:number) => {
   const newList = new Map<number, notTodoListType>();
     notTodoList.forEach((val:notTodoListType, key:number) => {
-    let isToday = isTodaysList(val.routine, val.customize);
-    if(isToday && (val.stop==='nolimit' || new Date(val.stopTodoDate).getTime()-todayMs>=0)) {
-      // 日付が変わった時に一度だけ実行
-      if(aIsTodayFirst) {
+    let isToday = isTodaysList(val.routine, val.customize, aYoubi);
+    if(isToday && (val.stop==='nolimit' || new Date(val.stopTodoDate).getTime()-aMs>=0)) {
+      if(aIsTodayFirst) {// 日付が変わった時に一度だけ実行
         val.done = false;
       }
       newList.set(key, val);
@@ -78,6 +80,19 @@ const getTodaysNotTodoList = (aIsTodayFirst:boolean=false) => {
   });
   return newList;
 };
+
+// 過去7日間のテンプレートを取得
+const getWeeklyListTemplateForUnusedDay = () => {
+  for(let cnt=0;cnt<7;++cnt) {
+    let isData = weeklyNotTodoList.get(past7DaysMs[cnt]);
+    if(!isData) {
+      // もしも過去7日間のデータが無いときはテンプレートをセットする doneは全てfalse
+      let theDaysNotTodoList = getTodaysNotTodoList(true, past7DaysMs[cnt], past7Days[cnt].youbi);
+      weeklyNotTodoList.set(past7DaysMs[cnt], {id:past7DaysMs[cnt], data:[...theDaysNotTodoList]});
+      localStorage.setItem('weeklyNotTodoList', JSON.stringify([...weeklyNotTodoList]));
+    }
+  }
+}
 
 const getWeeklyNotTodoList = () => {
   const newList = new Map<number, weeklyNotTodoListType>();
@@ -107,7 +122,7 @@ const onCheckDoneList = (id:number, done:boolean) : void => {
   const editData = notTodoList.get(id);
   if(editData) {
     notTodoList.set(id, {id:id, list:editData.list, routine:editData.routine, customize:editData.customize, stop:editData.stop, stopTodoDate:editData.stopTodoDate, done:done});
-    let todaysNotTodoList = getTodaysNotTodoList();
+    let todaysNotTodoList = getTodaysNotTodoList(false, todayMs, todaysDate.youbi);
     weeklyNotTodoList.set(todayMs, {id:todayMs, data:[...todaysNotTodoList]});
   }
   localStorage.setItem('notTodoList', JSON.stringify([...notTodoList]));
@@ -153,7 +168,7 @@ const onEditList = (aId:number, aEditedList:string) : void => {
   if(editData===undefined) { return; }
   if(aEditedList!=='undefined') {
     notTodoList.set(aId, {id:aId, list:aEditedList, routine:editData.routine, customize:editData.customize, stop:editData.stop, stopTodoDate:editData.stopTodoDate, done:editData.done});
-    let todaysNotTodoList = getTodaysNotTodoList();
+    let todaysNotTodoList = getTodaysNotTodoList(false, todayMs, todaysDate.youbi);
     weeklyNotTodoList.set(todayMs, {id:todayMs, data:[...todaysNotTodoList]});
   }
   localStorage.setItem('notTodoList', JSON.stringify([...notTodoList]));
@@ -170,7 +185,7 @@ if(!isHoliday && todaysDate.youbi===1) {
   }
 }
 
-const isTodaysList = (aRoutine:number, aCustomize:number[]) => {
+const isTodaysList = (aRoutine:number, aCustomize:number[], aYoubi:number) => {
   if(aRoutine==0) {//毎日の時
     return true;
   }
@@ -203,7 +218,7 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
   const notTodoListArray = [...notTodoList];
   let id = (aId===100000) ? notTodoListArray.length : aId;
   notTodoList.set(id, {id:id, list:list, routine:routine, customize:customize, stop:stopTodo, stopTodoDate:stopTodoDate, done:false});
-  let todaysNotTodoList = getTodaysNotTodoList();
+  let todaysNotTodoList = getTodaysNotTodoList(false, todayMs, todaysDate.youbi);
   weeklyNotTodoList.set(todayMs, {id:todayMs, data:[...todaysNotTodoList]});
   localStorage.setItem('notTodoList', JSON.stringify([...notTodoList]));
   localStorage.setItem('weeklyNotTodoList', JSON.stringify([...weeklyNotTodoList]));
@@ -233,7 +248,7 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
       <h2 class="todaysList__title">{{ todaysDate.year }}年{{ todaysDate.month }}月{{ todaysDate.day }}日（{{ youbi[todaysDate.youbi] }}）のしないことリスト</h2>
       <ul class="todaysList__list">
         <template v-for="[id, data] in notTodoList" :key="id">
-          <TodaysNotTodoList v-if="isTodaysList(data.routine, data.customize) && (data.stop==='nolimit' || data.stopTodoDate && new Date(data.stopTodoDate).getTime()-todayMs>=0)" :list="data.list" :id="id" :routine="data.routine" :customize="data.customize" :done="data.done" :selectListArray="selectListArray" :youbi="youbi" @checkDoneList="onCheckDoneList" />
+          <TodaysNotTodoList v-if="isTodaysList(data.routine, data.customize, todaysDate.youbi) && (data.stop==='nolimit' || data.stopTodoDate && new Date(data.stopTodoDate).getTime()-todayMs>=0)" :list="data.list" :id="id" :routine="data.routine" :customize="data.customize" :done="data.done" :selectListArray="selectListArray" :youbi="youbi" @checkDoneList="onCheckDoneList" />
         </template>
       </ul>
     </section>

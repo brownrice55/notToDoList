@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import {ref} from 'vue';
-  import {getIsHoliday} from './modules/getHoliday'
-  import {getShowRoutine} from './modules/getShowRoutine'
+  import {getIsHoliday} from './modules/getHoliday';
+  import {getShowRoutine} from './modules/getShowRoutine';
 
   interface Props {
     weeklyNotTodoList: any;
@@ -114,7 +114,7 @@
           {{ getShowRoutine(routineData[index][0], routineData[index][1], props.selectListArray, props.youbi) }}
         </dt>
         <dd>
-          達成率：{{ allPerDate[index] }}%
+          しなかった率：{{ allPerDate[index] }}%
           （期間：{{ getAllDate(routineData[index]) }}日間）
         </dd>
       </template>
