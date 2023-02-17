@@ -41,13 +41,20 @@
 
   // 今日と過去7日の間に祝日が何日あるかを取得
   let isHolidayCnt:number = 0;
-  if(props.isHoliday) {
+  let isHolidaySunSatCnt:number = 0;
+  if(props.isHoliday) {//今日が祝日かどうか
     isHolidayCnt++;
+    if(props.todaysDate.youbi==0 || props.todaysDate.youbi==6) {
+      isHolidaySunSatCnt++;
+    }
   }
-  for(let cnt=0;cnt<7;++cnt) {
+  for(let cnt=0;cnt<7;++cnt) {//過去7日の間
     let isHoliday = getIsHoliday(props.past7Days[cnt].year, props.past7Days[cnt].month, props.past7Days[cnt].day, props.past7Days[cnt].youbi);
     if(isHoliday) {
       isHolidayCnt++;
+      if(props.past7Days[cnt].youbi==0 || props.past7Days[cnt].youbi==6) {
+        isHolidaySunSatCnt++;
+      }  
     }
   }
 
@@ -60,7 +67,7 @@
       if(aRoutineData[0]===1 || aRoutineData[0]===2) {
         result = (props.todaysDate.youbi===0 || props.todaysDate.youbi===6) ? 5 : 6;
         if(aRoutineData[0]===1) {//平日（祝日含まない）の時
-          return (result-isHolidayCnt);//***祝日が土日の場合はカウントしない　後で修正 */
+          return (result-(isHolidayCnt-isHolidaySunSatCnt));//平日の時なので、祝日が土日の場合はカウントしない
         }
         //平日（祝日含む）の時
         return result;
@@ -71,7 +78,7 @@
           return result;
         }
         //土日祝の時
-         return (result+isHolidayCnt);//***祝日が土日の場合はカウントしない　後で修正 */
+         return (result+(isHolidayCnt-isHolidaySunSatCnt));//祝日が土日の場合はダブってしまうのでカウントしない
       }
       if(aRoutineData[0]===5) {//その他の時
         let isHolidayInCustomize = aRoutineData[1].some(val=>val===7) ? true : false;
