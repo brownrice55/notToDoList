@@ -16,6 +16,7 @@
   interface Emits {
     (event: 'editList', id:number, list:string): void;
     (event: 'addNewList', id:number, routine:number, customize:number[], list:string, stopTodo:string, stopTodoDate:string): void;
+    (event: 'deleteList', id:number): void;
   }
 
   const props = defineProps<Props>();
@@ -166,7 +167,16 @@
 
   const onCloseModal = (aIsModal:boolean) => {
     isModal.value = aIsModal;
-  }
+  };
+
+  const onDeleteList = (aId:number) => {
+    const e:any = event;
+    const targetElm = e.target as HTMLElement;
+    const parentLiElm = targetElm.closest('li') as HTMLElement;
+    parentLiElm.remove();
+    emit('deleteList', aId);
+    notTodoListState.value = getNotTodoListState(props.notTodoList);
+  };
 
 </script>
 
@@ -222,7 +232,7 @@
               <input type="text" :value="data.list">
             </div>
             <div>
-              <button>このリストを削除する</button>
+              <button @click="onDeleteList(data.id)">このリストを削除する</button>
             </div>
           </div>
         </li>

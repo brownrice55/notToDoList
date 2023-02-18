@@ -175,6 +175,16 @@ const onEditList = (aId:number, aEditedList:string) : void => {
   localStorage.setItem('weeklyNotTodoList', JSON.stringify([...weeklyNotTodoList]));
 };
 
+const onDeleteList = (aId:number) : void => {
+  const editData = notTodoList.get(aId);
+  if(editData===undefined) { return; }
+  notTodoList.delete(aId);
+  let todaysNotTodoList = getTodaysNotTodoList(false, todayMs, todaysDate.youbi);
+  weeklyNotTodoList.set(todayMs, {id:todayMs, data:[...todaysNotTodoList]});
+  localStorage.setItem('notTodoList', JSON.stringify([...notTodoList]));
+  localStorage.setItem('weeklyNotTodoList', JSON.stringify([...weeklyNotTodoList]));
+};
+
 let isHoliday = getIsHoliday(todaysDate.year, todaysDate.month, todaysDate.day, todaysDate.youbi);
 
 if(!isHoliday && todaysDate.youbi===1) {
@@ -260,7 +270,7 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
       <Total :weeklyNotTodoList="weeklyNotTodoList" :ListSize="notTodoList.size" :todaysDate="todaysDate" :past7Days="past7Days" :isHoliday="isHoliday" :selectListArray="selectListArray" :youbi="youbi" />
     </section>
     <section v-if="showPageKey==='settings'" class="settings">
-      <Settings :notTodoList="notTodoList" :selectListArray="selectListArray" :youbi="youbi" :isNotTodoData="isNotTodoData" :todaysDate="todaysDate" :todayMs="todayMs" @addNewList="onAddNewList" @editList="onEditList" />
+      <Settings :notTodoList="notTodoList" :selectListArray="selectListArray" :youbi="youbi" :isNotTodoData="isNotTodoData" :todaysDate="todaysDate" :todayMs="todayMs" @addNewList="onAddNewList" @editList="onEditList" @deleteList="onDeleteList" />
     </section>
   </main>
 </template>

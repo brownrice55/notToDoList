@@ -112,10 +112,10 @@
         <dt>
           {{ totalTitle[index] }}<br>
           {{ getShowRoutine(routineData[index][0], routineData[index][1], props.selectListArray, props.youbi) }}
+          （期間中：{{ getAllDate(routineData[index]) }}日間）
         </dt>
         <dd>
           しなかった率：{{ allPerDate[index] }}%
-          （期間：{{ getAllDate(routineData[index]) }}日間）
         </dd>
       </template>
     </template>
