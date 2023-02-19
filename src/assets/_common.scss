@@ -59,3 +59,28 @@
     }
   }
 }
+
+$colorBg: #eee;
+@mixin bgStripe {
+  background-image: -webkit-repeating-linear-gradient(
+    135deg,
+    $colorBg,
+    $colorBg 20px,
+    transparent 5px,
+    transparent 40px
+  );
+  background-image: repeating-linear-gradient(
+    -45deg,
+    $colorBg,
+    $colorBg 20px,
+    transparent 5px,
+    transparent 40px
+  );
+  background-size: 57px 57px;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+body {
+  font-size: 1rem;
+  @include bgStripe;
+}

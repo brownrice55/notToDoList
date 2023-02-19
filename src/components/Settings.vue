@@ -199,7 +199,7 @@
     <ModalSelectRoutine :selectListArray="selectListArray" :youbi="youbi" :currentId="currentId" :currentRoutines="currentRoutines" :currentState="currentState" :addAndEditList="addAndEditList" :todaysDate="todaysDate" :isModal="isModal" @addNewList="onAddNewList" @closeModal="onCloseModal"></ModalSelectRoutine>
   </div>
   <div class="settings__listArea" v-if="props.isNotTodoData">
-    <h3>しないことリスト</h3>
+    <h3>設定済みのリスト</h3>
     <template v-if="notTodoListState[0].size">
       <h4>現在進行中のリスト</h4>
       <ul>

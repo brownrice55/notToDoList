@@ -273,9 +273,6 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
 
 <style lang="scss" scoped>
 
-body {
-  font-size: 1rem;
-}
 .header, .main {
   width: 80%;
   max-width: 600px;
@@ -329,6 +326,11 @@ body {
       cursor: pointer;
     }
   }
+}
+.todaysList, .weeklyList, .total, .settings {
+  background: #fff;
+  padding:10px 30px;
+  height: 100%;
 }
 
 </style>
