@@ -44,6 +44,8 @@ if(weeklyNotTodoListJsonStr!=='undefined') {
   weeklyNotTodoList = new Map<number, weeklyNotTodoListType>(weeklyNotTodoListJson);
 }
 
+let todaysNotTodoList = new Map<number, notTodoListType>();
+
 interface weeklyNotTodoListType {
   id: number;
   data: any;
@@ -57,7 +59,7 @@ onMounted(
     if(notTodoList.size) {
       //notToDolistの絞り込み　今日のリストのみtodaysNotTodoListに入れてweeklyにも入れる
       const isTodayFirst = weeklyNotTodoList.get(todayMs) ? false : true;
-      let todaysNotTodoList = getTodaysNotTodoList(isTodayFirst, todayMs, todaysDate);
+      todaysNotTodoList = getTodaysNotTodoList(isTodayFirst, todayMs, todaysDate);
       weeklyNotTodoList.set(todayMs, {id:todayMs, data:[...todaysNotTodoList]});
       localStorage.setItem('weeklyNotTodoList', JSON.stringify([...weeklyNotTodoList]));
       if(isTodayFirst) {// 日付が変わった時に一度だけ実行
@@ -122,7 +124,7 @@ const onCheckDoneList = (id:number, done:boolean) : void => {
   const editData = notTodoList.get(id);
   if(editData) {
     notTodoList.set(id, {id:id, list:editData.list, routine:editData.routine, customize:editData.customize, stop:editData.stop, stopTodoDate:editData.stopTodoDate, done:done});
-    let todaysNotTodoList = getTodaysNotTodoList(false, todayMs, todaysDate);
+    todaysNotTodoList = getTodaysNotTodoList(false, todayMs, todaysDate);
     weeklyNotTodoList.set(todayMs, {id:todayMs, data:[...todaysNotTodoList]});
   }
   localStorage.setItem('notTodoList', JSON.stringify([...notTodoList]));
@@ -168,7 +170,7 @@ const onEditList = (aId:number, aEditedList:string) : void => {
   if(editData===undefined) { return; }
   if(aEditedList!=='undefined') {
     notTodoList.set(aId, {id:aId, list:aEditedList, routine:editData.routine, customize:editData.customize, stop:editData.stop, stopTodoDate:editData.stopTodoDate, done:editData.done});
-    let todaysNotTodoList = getTodaysNotTodoList(false, todayMs, todaysDate);
+    todaysNotTodoList = getTodaysNotTodoList(false, todayMs, todaysDate);
     weeklyNotTodoList.set(todayMs, {id:todayMs, data:[...todaysNotTodoList]});
   }
   localStorage.setItem('notTodoList', JSON.stringify([...notTodoList]));
@@ -179,7 +181,7 @@ const onDeleteList = (aId:number) : void => {
   const editData = notTodoList.get(aId);
   if(editData===undefined) { return; }
   notTodoList.delete(aId);
-  let todaysNotTodoList = getTodaysNotTodoList(false, todayMs, todaysDate);
+  todaysNotTodoList = getTodaysNotTodoList(false, todayMs, todaysDate);
   weeklyNotTodoList.set(todayMs, {id:todayMs, data:[...todaysNotTodoList]});
   localStorage.setItem('notTodoList', JSON.stringify([...notTodoList]));
   localStorage.setItem('weeklyNotTodoList', JSON.stringify([...weeklyNotTodoList]));
@@ -228,7 +230,7 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
   const notTodoListArray = [...notTodoList];
   let id = (aId===100000) ? notTodoListArray.length : aId;
   notTodoList.set(id, {id:id, list:list, routine:routine, customize:customize, stop:stopTodo, stopTodoDate:stopTodoDate, done:false});
-  let todaysNotTodoList = getTodaysNotTodoList(false, todayMs, todaysDate);
+  todaysNotTodoList = getTodaysNotTodoList(false, todayMs, todaysDate);
   weeklyNotTodoList.set(todayMs, {id:todayMs, data:[...todaysNotTodoList]});
   localStorage.setItem('notTodoList', JSON.stringify([...notTodoList]));
   localStorage.setItem('weeklyNotTodoList', JSON.stringify([...weeklyNotTodoList]));
@@ -245,8 +247,8 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
     <button class="header__openBtn" @click="onOpenMenu" :class="activeClass">{{ menuText }}</button>
     <nav class="header__nav" :class="activeClass">
       <ul>
-        <li @click="showPage('todaysList')" v-if="notTodoList">今日のリスト</li>
-        <li @click="showPage('weeklyList')" v-if="weeklyNotTodoList.size>1">今週のリスト</li>
+        <li @click="showPage('todaysList')" v-if="todaysNotTodoList.size>1">今日のリスト</li>
+        <li @click="showPage('weeklyList')" v-if="weeklyNotTodoList.size>1">過去7日間のリスト</li>
         <li @click="showPage('total')" v-if="weeklyNotTodoList.size>1">集計結果</li>
         <li @click="showPage('settings')">設定</li>
       </ul>
@@ -255,18 +257,12 @@ const onAddNewList = (aId:number, routine:number, customize:number[], list:strin
 
   <main class="main">
     <section v-if="showPageKey==='todaysList'" class="todaysList">
-      <h2 class="todaysList__title">{{ todaysDate.year }}年{{ todaysDate.month }}月{{ todaysDate.day }}日（{{ youbi[todaysDate.youbi] }}）のしないことリスト</h2>
-      <ul class="todaysList__list">
-        <template v-for="[id, data] in notTodoList" :key="id">
-          <TodaysNotTodoList v-if="isTodaysList(data.routine, data.customize, todaysDate) && (data.stop==='nolimit' || data.stopTodoDate && new Date(data.stopTodoDate).getTime()-todayMs>=0)" :list="data.list" :id="id" :routine="data.routine" :customize="data.customize" :done="data.done" :selectListArray="selectListArray" :youbi="youbi" @checkDoneList="onCheckDoneList" />
-        </template>
-      </ul>
+      <TodaysNotTodoList :todaysNotTodoList="todaysNotTodoList" :todaysDate="todaysDate" :selectListArray="selectListArray" :youbi="youbi" @checkDoneList="onCheckDoneList" />
     </section>
     <section v-if="showPageKey==='weeklyList'" class="weeklyList">
       <WeeklyNotTodoList :weeklyNotTodoList="weeklyNotTodoList" :past7Days="past7Days" :youbi="youbi" :past7DaysMs="past7DaysMs" :todayMs="todayMs" @checkDoneListWeekly="onCheckDoneListWeekly" />
     </section>
     <section v-if="showPageKey==='total'" class="total">
-      <h2 class="total__title">{{ past7Days[6].year }}年{{ past7Days[6].month }}月{{ past7Days[6].day }}日（{{ youbi[past7Days[6].youbi] }}）〜今日までの8日間の集計結果</h2>
       <Total :weeklyNotTodoList="weeklyNotTodoList" :ListSize="notTodoList.size" :todaysDate="todaysDate" :past7Days="past7Days" :isHoliday="isHoliday" :selectListArray="selectListArray" :youbi="youbi" />
     </section>
     <section v-if="showPageKey==='settings'" class="settings">

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import {ref} from 'vue';
   import {getIsHoliday} from './modules/getHoliday';
   import {getShowRoutine} from './modules/getShowRoutine';
 
@@ -14,11 +13,6 @@
   }
 
   const props = defineProps<Props>();
-
-  interface weeklyNotTodoListType {
-    id: number;
-    data: object;
-  }
 
   let totalTitle = Array(props.ListSize).fill('');
   let totalData = Array(props.ListSize).fill(0);
@@ -106,6 +100,7 @@
 </script>
 
 <template>
+  <h2 class="total__title">{{ props.past7Days[6].year }}年{{ props.past7Days[6].month }}月{{ props.past7Days[6].day }}日（{{ props.youbi[props.past7Days[6].youbi] }}）〜今日までの8日間の集計結果</h2>
   <dl class="total__list">
     <template v-for="(data,index) in totalData" :key="data">
       <template v-if="data">

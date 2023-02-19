@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import {ref} from 'vue';
 
   interface Props {
     weeklyNotTodoList: any;
@@ -54,6 +53,7 @@
 
 <template>
   <div class="weekly">
+    <h2>過去7日間のリスト</h2>
     <div class="weekly__container" v-for="(val, index) in props.past7DaysMs" :key="val">
       <h3>{{ showDate(index) }}</h3>
       <div class="weekly__container">
@@ -69,7 +69,7 @@
         </template>
         <ul v-if="isUnUsed()">
           <li>
-            この日のアプリの使用はありません。
+            この日のデータはありません。
           </li>
         </ul>
       </div>
