@@ -30,7 +30,7 @@
     const targetElm =  event.target as HTMLElement;
     const parentElm = targetElm.parentNode as HTMLDivElement;
     parentElm.classList.toggle('disabled');
-    const focusElm = targetElm.previousSibling as HTMLElement;
+    const focusElm = targetElm.previousSibling as HTMLInputElement;
     focusElm.focus();
   };
 
@@ -297,11 +297,15 @@
         i {
           display: inline-block;
         }
+        input {
+          padding: 0;
+        }
       }
       input {
         width:90%;
-        padding: 5px;
-        margin: 5px 10px;
+        display: inline-block;
+        padding: 5px 10px;
+        margin: 5px 0;
       }
       select {
         margin: 0;

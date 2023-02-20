@@ -75,11 +75,13 @@
          return (result+(isHolidayCnt-isHolidaySunSatCnt));//祝日が土日の場合はダブってしまうのでカウントしない
       }
       if(aRoutineData[0]===5) {//その他の時
-        let isHolidayInCustomize = aRoutineData[1].some(val=>val===7) ? true : false;
+        let isHolidayInCustomize:boolean = aRoutineData[1].some(val=>val===7) ? true : false;
+        //今日の曜日がroutineに入る場合はプラス１する
+        let numTodayYoubiInCustomize:number = aRoutineData[1].some(val=>val===props.todaysDate.youbi) ? 1 : 0;
         if(isHolidayInCustomize && isHolidayCnt) {//祝日含む時
-          return aRoutineData[1].length-1 + isHolidayCnt;
+          return (aRoutineData[1].length + numTodayYoubiInCustomize)-1 + isHolidayCnt;
         }
-        return aRoutineData[1].length;
+        return (aRoutineData[1].length + numTodayYoubiInCustomize);
       }
     }
     return 1000000;
