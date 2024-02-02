@@ -21,25 +21,14 @@ Could you please let me know if there are any errors in my English or code?</p>
 <p>I will provide additional information below at a later time.</p>
 <p>下記、後ほど追記します。</p>
 
-# notToDoList
+# not to do list
+> しないことリスト
 
-## Overview
-
-## Usage
-
-<hr>
-
-# しないことリスト
-
-## 概要
-<ul>
-<li>「しないこと」のTodoアプリです。</li>
-<li>TypeScriptとVue3のcomposition APIに慣れるための趣味と勉強のための制作物です。少しずつブラッシュアップする予定です。</li>
-</ul>
-  
-## 使い方
-<ol>
-<li>「しないこと」を入力して「追加」ボタンを押し、いつしないのか、いつまでしないのかを選択して「保存する」ボタンを押します。</li>
-<li>その日にしないことを毎日チェックして、実行できたらチェックを入れます。</li>
-<li>当日にチェックを入れ忘れたら、過去7日間はチェックを入れることができます。</li>
-</ol>
+## outline
+<p>This app is designed for managing things you don't want to do.
+I developed this program to familiarize myself with TypeScript and Composition API for Vue3.
+</p>
+<p>
+「しないこと」を管理するためのTodoアプリです。
+TypeScriptとVue3のcomposition APIに慣れるための趣味と勉強のための制作物です。
+</p>
