@@ -18,9 +18,6 @@ Could you please let me know if there are any errors in my English or code?</p>
 <p>また、現在、英語とプログラミングの両方を勉強しています。
 おかしなところがありましたら、ご指摘いただけますと幸いです。</p>
 
-<p>I will provide additional information below at a later time.</p>
-<p>下記、後ほど追記します。</p>
-
 # not to do list
 > しないことリスト
 
