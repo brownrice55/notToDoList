@@ -29,3 +29,8 @@ I developed this program to familiarize myself with TypeScript and Composition A
 「しないこと」を管理するためのTodoアプリです。
 TypeScriptとVue3のcomposition APIに慣れるための趣味と勉強のための制作物です。
 </p>
+
+## reset css
+<ul>
+<li>https://github.com/nicolas-cusan/destyle.css</li>
+</ul>
